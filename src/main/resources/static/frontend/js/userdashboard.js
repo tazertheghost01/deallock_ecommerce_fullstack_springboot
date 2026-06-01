@@ -552,89 +552,125 @@ document.addEventListener('DOMContentLoaded', () => {
 
   removeBtn?.addEventListener('click', clearPreview);
 
-  // ── Payment Preview ──
-  const valueInput    = document.getElementById('deal-value');
-  const weeksSelect   = document.getElementById('weeks');
-  const customWeeks   = document.getElementById('custom-weeks');
-  const customGroup   = document.getElementById('custom-weeks-group');
-  const extraFeeRow   = document.getElementById('extra-fee-row');
-  const breakdown     = document.getElementById('breakdown');
+// ── Payment Preview Elements ──
+const elements = {
+  valueInput: document.getElementById('deal-value'),
+  weeksSelect: document.getElementById('weeks'),
+  customWeeks: document.getElementById('custom-weeks'),
+  customGroup: document.getElementById('custom-weeks-group'),
+  extraFeeRow: document.getElementById('extra-fee-row'),
+  breakdown: document.getElementById('breakdown'),
+  displayValue: document.getElementById('display-value'),
+  displayService: document.getElementById('display-service-fee'),
+  displayExtra: document.getElementById('display-extra-fee'),
+  displayVat: document.getElementById('display-vat'),
+  displayTotal: document.getElementById('display-total'),
+  upfrontEl: document.getElementById('upfront-amount'),
+  weeklyCountEl: document.getElementById('weekly-count'),
+  weeklyAmountEl: document.getElementById('weekly-amount')
+};
 
-  const displayValue   = document.getElementById('display-value');
-  const displayService = document.getElementById('display-service-fee');
-  const displayExtra   = document.getElementById('display-extra-fee');
-  const displayVat     = document.getElementById('display-vat');
-  const displayTotal   = document.getElementById('display-total');
-  const upfrontEl      = document.getElementById('upfront-amount');
-  const weeklyCountEl  = document.getElementById('weekly-count');
-  const weeklyAmountEl = document.getElementById('weekly-amount');
-
-  function updatePaymentPreview() {
-    const value = parseFloat(valueInput?.value) || 0;
-    if (value < 1000) {
-      resetPaymentDisplays();
-      return;
-    }
-
-    let weeks = parseInt(weeksSelect?.value) || 0;
-    let extraFeePercent = 0;
-    const isCustom = weeksSelect?.value === 'custom';
-
-    if (isCustom) {
-      customGroup?.classList.remove('hidden');
-      weeks = parseInt(customWeeks?.value) || 0;
-      if (weeks > 2) extraFeePercent = 0.05;
-    } else {
-      customGroup?.classList.add('hidden');
-      if (customWeeks) customWeeks.value = '';
-    }
-
-    if (weeks < 1) {
-      resetPaymentDisplays();
-      return;
-    }
-
-    const serviceFee = value * 0.05 * weeks;
-    const extraFee   = (value + serviceFee) * extraFeePercent;
-    const subTotal   = value + serviceFee + extraFee;
-    const vat        = subTotal * 0.075;
-    const grandTotal = subTotal + vat;
-
-    if (displayValue)   displayValue.textContent   = value.toLocaleString();
-    if (displayService) displayService.textContent = 'NGN ' + serviceFee.toLocaleString();
-
-    if (extraFeePercent > 0) {
-      extraFeeRow?.classList.remove('hidden');
-      if (displayExtra) displayExtra.textContent = 'NGN ' + extraFee.toLocaleString();
-    } else {
-      extraFeeRow?.classList.add('hidden');
-    }
-
-    if (displayVat)   displayVat.textContent   = 'NGN ' + vat.toLocaleString();
-    if (displayTotal) displayTotal.textContent = 'NGN ' + grandTotal.toLocaleString();
-
-    const upfront = grandTotal * 0.5;
-    const weekly  = weeks > 0 ? (grandTotal * 0.5) / weeks : 0;
-
-    if (upfrontEl)      upfrontEl.textContent      = 'NGN ' + Math.round(upfront).toLocaleString();
-    if (weeklyCountEl)  weeklyCountEl.textContent  = weeks;
-    if (weeklyAmountEl) weeklyAmountEl.textContent = 'NGN ' + Math.round(weekly).toLocaleString();
-
-    breakdown?.classList.remove('hidden');
+function updatePaymentPreview() {
+  const value = parseFloat(elements.valueInput?.value) || 0;
+  const isCustom = elements.weeksSelect?.value === 'custom';
+  
+  // Toggle custom input field visibility
+  if (isCustom) {
+    elements.customGroup?.classList.remove('hidden');
+  } else {
+    elements.customGroup?.classList.add('hidden');
+    if (elements.customWeeks) elements.customWeeks.value = '';
   }
 
-  function resetPaymentDisplays() {
-    [displayValue, displayService, displayExtra, displayVat, displayTotal, upfrontEl, weeklyAmountEl]
-      .forEach(el => { if (el) el.textContent = '0'; });
-    extraFeeRow?.classList.add('hidden');
-    breakdown?.classList.add('hidden');
+  let weeks = isCustom ? parseInt(elements.customWeeks?.value) || 0 : parseInt(elements.weeksSelect?.value) || 0;
+
+  // Validation Check
+  if (value < 1000 || weeks < 1) {
+    resetPaymentDisplays();
+    return;
   }
 
-  valueInput?.addEventListener('input', updatePaymentPreview);
-  weeksSelect?.addEventListener('change', updatePaymentPreview);
-  customWeeks?.addEventListener('input', updatePaymentPreview);
+  let serviceFee = 0;
+  let upfrontBase = value;
+  let remainingBase = 0;
 
-  updatePaymentPreview();
+  if (weeks === 1) {
+    // Full payment: 0% service fee
+    serviceFee = 0;
+    upfrontBase = value;
+    remainingBase = 0;
+  } else {
+    // Installments: 50% split
+    upfrontBase = value * 0.50;
+    remainingBase = value * 0.50;
+    // Service fee applies ONLY to the remainder base
+    serviceFee = remainingBase * 0.05 * weeks;
+  }
+
+  // Extra fee penalty (5%) on custom arrangements over 2 weeks
+  const extraFeePercent = (isCustom && weeks > 2) ? 0.05 : 0;
+  const extraFee = (remainingBase + serviceFee) * extraFeePercent;
+
+  // Total Financed Remainder (Balance + Fees)
+  const totalRemainder = remainingBase + serviceFee + extraFee;
+  
+  // Subtotal combined (Upfront cash base + total financed balance)
+  const subTotal = upfrontBase + totalRemainder;
+  
+  // VAT applied to everything
+  const vat = subTotal * 0.075;
+  const grandTotal = subTotal + vat;
+
+  // Final payment allocation
+  // Upfront payment includes 50% of the item cost + 50% of the calculated total VAT
+  const upfront = (upfrontBase) + (vat * 0.5);
+  // Weekly structure pays off the remaining financed chunk + the remaining half of the VAT
+  const weekly = weeks > 1 ? ((totalRemainder) + (vat * 0.5)) / weeks : 0;
+
+  // DOM Updates
+  if (elements.displayValue) elements.displayValue.textContent = value.toLocaleString();
+  if (elements.displayService) elements.displayService.textContent = `NGN ${serviceFee.toLocaleString()}`;
+  
+  if (extraFeePercent > 0) {
+    elements.extraFeeRow?.classList.remove('hidden');
+    if (elements.displayExtra) elements.displayExtra.textContent = `NGN ${extraFee.toLocaleString()}`;
+  } else {
+    elements.extraFeeRow?.classList.add('hidden');
+  }
+
+  if (elements.displayVat) elements.displayVat.textContent = `NGN ${vat.toLocaleString()}`;
+  if (elements.displayTotal) elements.displayTotal.textContent = `NGN ${grandTotal.toLocaleString()}`;
+  if (elements.upfrontEl) elements.upfrontEl.textContent = `NGN ${Math.round(upfront).toLocaleString()}`;
+  
+  if (elements.weeklyCountEl) elements.weeklyCountEl.textContent = weeks === 1 ? 0 : weeks;
+  if (elements.weeklyAmountEl) elements.weeklyAmountEl.textContent = `NGN ${Math.round(weekly).toLocaleString()}`;
+
+  elements.breakdown?.classList.remove('hidden');
+}
+
+function resetPaymentDisplays() {
+  const elementsToReset = [
+    elements.displayValue, elements.displayService, elements.displayExtra, 
+    elements.displayVat, elements.displayTotal, elements.upfrontEl, elements.weeklyAmountEl
+  ];
+  
+  elementsToReset.forEach(el => {
+    if (el) el.textContent = '0';
+  });
+
+  if (elements.weeklyCountEl) elements.weeklyCountEl.textContent = '0';
+  elements.extraFeeRow?.classList.add('hidden');
+  elements.breakdown?.classList.add('hidden');
+}
+
+// ── Event Listeners ──
+elements.valueInput?.addEventListener('input', updatePaymentPreview);
+elements.weeksSelect?.addEventListener('change', updatePaymentPreview);
+elements.customWeeks?.addEventListener('input', updatePaymentPreview);
+
+// Initial Run
+updatePaymentPreview();
+
 
   // ====================== FORM SUBMISSION ======================
   form?.addEventListener('submit', async (e) => {
