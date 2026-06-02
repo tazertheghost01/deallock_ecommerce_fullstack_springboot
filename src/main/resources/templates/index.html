@@ -378,38 +378,40 @@
 
 <section class="bg-white py-20" id="how-it-works">
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
-    
     <div class="text-center mb-16">
       <h2 class="text-4xl md:text-5xl font-bold text-gray-900">How It Works</h2>
       <p class="mt-4 text-gray-600 text-lg">Secure your deal in 6 simple steps</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-
       
+      <!-- Phone Container -->
       <div class="lg:col-span-5 flex justify-center lg:justify-end">
         <div class="relative w-full max-w-[320px]">
           <div class="bg-black rounded-[3.5rem] p-4 shadow-2xl">
             <div class="bg-white rounded-[2.8rem] overflow-hidden h-[620px] relative border border-gray-300">
-
               
+              <!-- Phone Top Bar -->
               <div class="h-11 bg-white flex items-center justify-center">
                 <div class="w-36 h-5 bg-black rounded-full"></div>
               </div>
-
               
-              <div id="phone-screen" class="h-[calc(100%-44px)] bg-[#0a0a0a] text-white p-8 flex flex-col items-center justify-center text-center transition-all duration-700">
-
-                <div id="writing-area" class="flex-1 flex flex-col items-center justify-center relative">
-
-                  <div id="pen-icon" class="text-6xl mb-8 transition-all duration-500">✍️</div>
+              <!-- Phone Screen -->
+              <div id="phone-screen" class="h-[calc(100%-44px)] bg-[#0a0a0a] text-white p-8 flex flex-col transition-all duration-700">
+                <div class="flex-1 flex flex-col items-center justify-center text-center relative">
                   
-                  <div id="step-content" class="w-full space-y-5 opacity-0 transition-all duration-700">
-                    <h3 id="phone-step-number" class="text-emerald-400 text-3xl font-bold tracking-widest"></h3>
+                  <div id="step-content" class="w-full space-y-6">
+                    <h3 id="phone-step-number" class="text-emerald-400 text-4xl font-bold tracking-widest"></h3>
                     <h4 id="phone-step-title" class="text-2xl font-semibold text-white"></h4>
                     <p id="phone-step-desc" class="text-gray-300 text-[15.5px] leading-relaxed px-4"></p>
                   </div>
 
+                  <!-- Navigation Dots (Mobile Only) -->
+                  <div class="lg:hidden flex gap-2 mt-10">
+                    <button onclick="prevStep()" class="w-8 h-8 flex items-center justify-center text-white/70 hover:text-white">←</button>
+                    <div class="flex gap-2" id="step-dots"></div>
+                    <button onclick="nextStep()" class="w-8 h-8 flex items-center justify-center text-white/70 hover:text-white">→</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -417,10 +419,9 @@
         </div>
       </div>
 
-      
-      <div class="lg:col-span-7">
-        <div class="space-y-5 max-w-lg">   <!-- Added max-w-lg to reduce width -->
-
+      <!-- Steps List (Desktop Only) -->
+      <div class="lg:col-span-7 hidden lg:block">
+        <div class="space-y-5 max-w-lg">
           <div onclick="showStep(1)" class="step-card cursor-pointer" id="step-1">
             <div class="flex gap-5">
               <div class="w-11 h-11 bg-emerald-600 text-white rounded-2xl flex items-center justify-center font-bold flex-shrink-0 text-xl">1</div>
@@ -430,7 +431,7 @@
               </div>
             </div>
           </div>
-
+          <!-- Repeat for steps 2-6 (same as before) -->
           <div onclick="showStep(2)" class="step-card cursor-pointer" id="step-2">
             <div class="flex gap-5">
               <div class="w-11 h-11 bg-emerald-600 text-white rounded-2xl flex items-center justify-center font-bold flex-shrink-0 text-xl">2</div>
@@ -440,7 +441,6 @@
               </div>
             </div>
           </div>
-
           <div onclick="showStep(3)" class="step-card cursor-pointer" id="step-3">
             <div class="flex gap-5">
               <div class="w-11 h-11 bg-emerald-600 text-white rounded-2xl flex items-center justify-center font-bold flex-shrink-0 text-xl">3</div>
@@ -450,7 +450,6 @@
               </div>
             </div>
           </div>
-
           <div onclick="showStep(4)" class="step-card cursor-pointer" id="step-4">
             <div class="flex gap-5">
               <div class="w-11 h-11 bg-emerald-600 text-white rounded-2xl flex items-center justify-center font-bold flex-shrink-0 text-xl">4</div>
@@ -460,7 +459,6 @@
               </div>
             </div>
           </div>
-
           <div onclick="showStep(5)" class="step-card cursor-pointer" id="step-5">
             <div class="flex gap-5">
               <div class="w-11 h-11 bg-emerald-600 text-white rounded-2xl flex items-center justify-center font-bold flex-shrink-0 text-xl">5</div>
@@ -470,7 +468,6 @@
               </div>
             </div>
           </div>
-
           <div onclick="showStep(6)" class="step-card cursor-pointer" id="step-6">
             <div class="flex gap-5">
               <div class="w-11 h-11 bg-emerald-600 text-white rounded-2xl flex items-center justify-center font-bold flex-shrink-0 text-xl">6</div>
@@ -480,10 +477,8 @@
               </div>
             </div>
           </div>
-
         </div>
       </div>
-
     </div>
   </div>
 </section>
@@ -663,6 +658,7 @@
 
 
   <script src="/frontend/js/home.js" defer></script>
+  <script src="/frontend/js/home2.js" defer></script>
 </body>
 </html>
 
