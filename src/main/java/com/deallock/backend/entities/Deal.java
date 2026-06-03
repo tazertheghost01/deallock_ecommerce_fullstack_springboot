@@ -33,16 +33,41 @@ public class Deal {
     private String link;
     private String clientName;
     private String sellerPhoneNumber;
+
+    // ----- Seller address (free text, kept as before) -----
     @Column(length = 1000)
     private String sellerAddress;
+
+    // ----- Structured seller address fields (new) -----
+    @Column(length = 100)
+    private String sellerCountry;
+
+    @Column(length = 100)
+    private String sellerCity;
+
+    @Column(length = 100)
+    private String sellerLga;          // Local Government Area
+
+    // ----- Buyer delivery address (free text, was deliveryAddress) -----
     @Column(length = 1000)
-    private String deliveryAddress;
+    private String deliveryAddress;    // buyer's full address
+
+    // ----- Structured buyer address fields (new) -----
+    @Column(length = 100)
+    private String buyerCountry;
+
+    @Column(length = 100)
+    private String buyerCity;
+
+    @Column(length = 100)
+    private String buyerState;          // state/province for buyer
+
     private String itemSize;
 
     /**
      * Whether the user allows DealLock to list this item on the marketplace
      * (for example if the deal expires without payment).
-     *
+     * <p>
      * Nullable for backward compatibility with existing rows. Treat null as "allowed".
      */
     private Boolean allowMarketplaceListing;
