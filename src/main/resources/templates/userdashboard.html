@@ -506,7 +506,17 @@
           </div>
         </div>
       </div>
-
+     <!-- Weeks select -->
+        <div class="mb-4">
+          <label for="weeks" class="block mb-1.5 font-medium text-gray-700">Number of weekly installments</label>
+          <select id="weeks" name="weeks"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl text-base bg-white">
+            <option value="">Select duration</option>
+            <option value="1">1 week (full payment)</option>
+            <option value="2">2 weeks (standard max)</option>
+            <option value="custom">Request more than 2 weeks</option>
+          </select>
+        </div>
       <!-- ── Payment Plan ──
            JS (updatePaymentPreview) reads:
              #deal-value, #weeks, #custom-weeks, #custom-weeks-group
@@ -524,15 +534,7 @@
             <span>Item Value (NGN)</span>
             <strong id="display-value">0</strong>
           </div>
-          <div class="flex justify-between py-2 border-b border-gray-100">
-            <span>Service Fee (5% per week)</span>
-            <strong id="display-service-fee">NGN 0</strong>
-          </div>
-          <!-- hidden until custom weeks > 2 -->
-          <div class="flex justify-between py-2 border-b border-gray-100 hidden" id="extra-fee-row">
-            <span>Extra 5% (extended plan)</span>
-            <strong id="display-extra-fee">NGN 0</strong>
-          </div>
+          
           <div class="flex justify-between py-2 border-b border-gray-100">
             <span>VAT (7.5%)</span>
             <strong id="display-vat">NGN 0</strong>
@@ -543,17 +545,7 @@
           </div>
         </div>
 
-        <!-- Weeks select -->
-        <div class="mb-4">
-          <label for="weeks" class="block mb-1.5 font-medium text-gray-700">Number of weekly installments</label>
-          <select id="weeks" name="weeks"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-xl text-base bg-white">
-            <option value="">Select duration</option>
-            <option value="1">1 week (full payment)</option>
-            <option value="2">2 weeks (standard max)</option>
-            <option value="custom">Request more than 2 weeks</option>
-          </select>
-        </div>
+       
 
         <!-- Custom weeks — shown when "Request more than 2 weeks" is selected.
              id="custom-weeks-group" toggled by JS -->
@@ -571,6 +563,15 @@
           <div class="flex justify-between py-2">
             <span>Upfront (50% of total)</span>
             <strong id="upfront-amount">NGN 0</strong>
+          </div>
+          <div class="flex justify-between py-2 border-b border-gray-100">
+            <span>Service Fee (5% per week)</span>
+            <strong id="display-service-fee">NGN 0</strong>
+          </div>
+          <!-- hidden until custom weeks > 2 -->
+          <div class="flex justify-between py-2 border-b border-gray-100 hidden" id="extra-fee-row">
+            <span>Extra 5% (extended plan)</span>
+            <strong id="display-extra-fee">NGN 0</strong>
           </div>
           <div class="flex justify-between py-2">
             <span>Weekly payment &times; <span id="weekly-count">0</span></span>
