@@ -1,74 +1,77 @@
+<script>
 document.addEventListener('DOMContentLoaded', async () => {
+
+    // Select elements
     const sellerStateSel = document.getElementById('seller-state');
     const sellerCitySel = document.getElementById('seller-city');
     const deliveryStateSel = document.getElementById('delivery-state');
     const deliveryCitySel = document.getElementById('delivery-city');
 
-    // Reliable API base URL
-    const API_BASE = 'https://nigeria-states-towns-lgas.onrender.com/api';
+    // GitHub Raw Data URLs (Reliable & Free)
+    const STATES_URL = 'https://raw.githubusercontent.com/temikeezy/nigeria-geojson-data/main/states.json';
+    const LGAS_URL = 'https://raw.githubusercontent.com/temikeezy/nigeria-geojson-data/main/lgas.json';
 
-    // 1. Fetch Nigerian States
+    let lgasData = {};   // To store LGAs by state
+
+    // ==================== LOAD STATES ====================
     try {
-        const response = await fetch(`${API_BASE}/states`);
-        if (!response.ok) throw new Error('Failed to fetch states');
+        const statesRes = await fetch(STATES_URL);
+        const states = await statesRes.json();
 
-        const states = await response.json();
+        const lgasRes = await fetch(LGAS_URL);
+        lgasData = await lgasRes.json();
 
-        // Populate both state dropdowns
-        states.forEach(state => {
+        // Populate both State dropdowns
+        states.forEach(stateName => {
             // Seller State
             const optSeller = document.createElement('option');
-            optSeller.value = state.code || state.state_code || state.id; // Adjust based on API response
-            optSeller.textContent = state.name || state.state;
+            optSeller.value = stateName;
+            optSeller.textContent = stateName;
             sellerStateSel.appendChild(optSeller);
 
             // Delivery State
             const optDelivery = document.createElement('option');
-            optDelivery.value = state.code || state.state_code || state.id;
-            optDelivery.textContent = state.name || state.state;
+            optDelivery.value = stateName;
+            optDelivery.textContent = stateName;
             deliveryStateSel.appendChild(optDelivery);
         });
 
+        // Enable dropdowns
         sellerStateSel.disabled = false;
         deliveryStateSel.disabled = false;
+
     } catch (error) {
-        console.error("Failed to load Nigerian states:", error);
-        alert("Could not load states. Please check your internet connection.");
+        console.error("Failed to load Nigerian states and LGAs:", error);
+        alert("Unable to load states. Please check your internet connection.");
     }
 
-    // 2. Load Cities (LGAs) for a selected state
-    async function loadCities(stateCode, citySelectElement) {
+    // ==================== LOAD CITIES (LGAs) ====================
+    function loadCities(stateName, citySelectElement) {
         citySelectElement.innerHTML = '<option value="">Select City / LGA</option>';
         citySelectElement.disabled = true;
 
-        if (!stateCode) return;
-
-        try {
-            const response = await fetch(`${API_BASE}/state/${stateCode}/lgas`);
-            if (!response.ok) throw new Error('Failed to fetch LGAs');
-
-            const cities = await response.json();
-
-            cities.forEach(city => {
-                const opt = document.createElement('option');
-                opt.value = typeof city === 'string' ? city : city.name || city.lga;
-                opt.textContent = typeof city === 'string' ? city : city.name || city.lga;
-                citySelectElement.appendChild(opt);
-            });
-
-            citySelectElement.disabled = false;
-        } catch (error) {
-            console.error(`Failed to load cities for state ${stateCode}:`, error);
-            citySelectElement.innerHTML = '<option value="">Error loading cities</option>';
+        if (!stateName || !lgasData[stateName]) {
+            return;
         }
+
+        lgasData[stateName].forEach(lga => {
+            const option = document.createElement('option');
+            option.value = lga;
+            option.textContent = lga;
+            citySelectElement.appendChild(option);
+        });
+
+        citySelectElement.disabled = false;
     }
 
-    // 3. Event Listeners
-    sellerStateSel.addEventListener('change', function() {
-        loadCities(this.value, sellerCitySel);
+    // ==================== EVENT LISTENERS ====================
+    sellerStateSel.addEventListener('change', () => {
+        loadCities(sellerStateSel.value, sellerCitySel);
     });
 
-    deliveryStateSel.addEventListener('change', function() {
-        loadCities(this.value, deliveryCitySel);
+    deliveryStateSel.addEventListener('change', () => {
+        loadCities(deliveryStateSel.value, deliveryCitySel);
     });
+
 });
+</script>
