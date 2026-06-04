@@ -1,72 +1,67 @@
- import { getCountries, getStatesOfCountry, getCitiesOfState } from 'https://jsdelivr.net';
-        
-        // Expose functions globally so our setup script can access them
-        window.csc = { getCountries, getStatesOfCountry, getCitiesOfState };
-        // Trigger initialization event
-        window.dispatchEvent(new Event('csc-ready'));
+document.addEventListener('DOMContentLoaded', async () => {
+    const sellerStateSel = document.getElementById('seller-state');
+    const sellerCitySel = document.getElementById('seller-city');
+    const deliveryStateSel = document.getElementById('delivery-state');
+    const deliveryCitySel = document.getElementById('delivery-city');
 
- async function setupLocationDropdowns(prefix) {
-            const countrySel = document.getElementById(`${prefix}-country`);
-            const stateSel = document.getElementById(`${prefix}-state`);
-            const citySel = document.getElementById(`${prefix}-city`);
+    // 1. Fetch Nigerian states from the dedicated open API
+    try {
+        const response = await fetch('https://onrender.com');
+        const states = await response.json();
 
-            // 1. Instantly pull countries locally via our module helper
-            const countries = await window.csc.getCountries();
-            countries.forEach(country => {
-                const opt = document.createElement('option');
-                opt.value = country.iso2;
-                opt.textContent = country.name;
-                countrySel.appendChild(opt);
-            });
+        // Populate State drop-downs
+        states.forEach(stateObj => {
+            // Seller State Option
+            const optSeller = document.createElement('option');
+            optSeller.value = stateObj.state_code; // e.g., "LA"
+            optSeller.textContent = stateObj.name; // e.g., "Lagos"
+            sellerStateSel.appendChild(optSeller);
 
-            // 2. Watch country changes -> unlock and populate states
-            countrySel.addEventListener('change', async function() {
-                const countryCode = this.value;
-                
-                stateSel.innerHTML = '<option value="">Select State</option>';
-                citySel.innerHTML = '<option value="">Select City</option>';
-                stateSel.disabled = true;
-                citySel.disabled = true;
-
-                if (!countryCode) return;
-
-                const states = await window.csc.getStatesOfCountry(countryCode);
-                if (states.length > 0) {
-                    states.forEach(state => {
-                        const opt = document.createElement('option');
-                        opt.value = state.iso2;
-                        opt.textContent = state.name;
-                        stateSel.appendChild(opt);
-                    });
-                    stateSel.disabled = false;
-                }
-            });
-
-            // 3. Watch state changes -> unlock and populate cities
-            stateSel.addEventListener('change', async function() {
-                const countryCode = countrySel.value;
-                const stateCode = this.value;
-
-                citySel.innerHTML = '<option value="">Select City</option>';
-                citySel.disabled = true;
-
-                if (!stateCode) return;
-
-                const cities = await window.csc.getCitiesOfState(countryCode, stateCode);
-                if (cities.length > 0) {
-                    cities.forEach(city => {
-                        const opt = document.createElement('option');
-                        opt.value = city.name;
-                        opt.textContent = city.name;
-                        citySel.appendChild(opt);
-                    });
-                    citySel.disabled = false;
-                }
-            });
-        }
-
-        // Initialize drop-downs once CDN loads libraries into windows context
-        window.addEventListener('csc-ready', () => {
-            setupLocationDropdowns('seller');
-            setupLocationDropdowns('delivery');
+            // Delivery State Option
+            const optDelivery = document.createElement('option');
+            optDelivery.value = stateObj.state_code; 
+            optDelivery.textContent = stateObj.name; 
+            deliveryStateSel.appendChild(optDelivery);
         });
+
+        // Activate dropdown fields
+        sellerStateSel.disabled = false;
+        deliveryStateSel.disabled = false;
+
+    } catch (error) {
+        console.error("Failed to load Nigerian states:", error);
+    }
+
+    // 2. Dynamic City Loading Handler
+    async function loadCities(stateCode, citySelectElement) {
+        citySelectElement.innerHTML = '<option value="">Select City</option>';
+        citySelectElement.disabled = true;
+
+        if (!stateCode) return;
+
+        try {
+            const response = await fetch(`https://onrender.com{stateCode}/lgas`);
+            const cities = await response.json();
+
+            cities.forEach(city => {
+                const opt = document.createElement('option');
+                opt.value = city; // text value of LGA
+                opt.textContent = city;
+                citySelectElement.appendChild(opt);
+            });
+
+            citySelectElement.disabled = false;
+        } catch (error) {
+            console.error(`Failed to load cities for state code ${stateCode}:`, error);
+        }
+    }
+
+    // 3. Event Listeners for Cascading Changes
+    sellerStateSel.addEventListener('change', function() {
+        loadCities(this.value, sellerCitySel);
+    });
+
+    deliveryStateSel.addEventListener('change', function() {
+        loadCities(this.value, deliveryCitySel);
+    });
+});
