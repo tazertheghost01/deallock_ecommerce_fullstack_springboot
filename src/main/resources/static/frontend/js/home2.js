@@ -2,9 +2,9 @@ let currentStep = 1;
 const totalSteps = 6;
 
 const steps = {
-  1: { num: "01", title: "Find a Deal", desc: "Browse our marketplace and find the item you want." },
-  2: { num: "02", title: "Pay to Lock", desc: "Make a small deposit to secure the deal." },
-  3: { num: "03", title: "We Secure the Item", desc: "We hold the item safely until payment is complete." },
+  1: { num: "01", title: "Find a Deal", desc: "You find a product anywhere online, on social media, through a friend or in a physical store. Deallock.ng, create an account or sign in, and tap Lock a Deal to begin securing the item." },
+  2: { num: "02", title: "Pay to Lock", desc: "Pay 50% commitment deposit plus any apllicable charges to Deallock.ng to confrim your serious interest in the item and lock the transaction." },
+  3: { num: "03", title: "We Secure the Item", desc: "Deallock.ng secures the item on your behalf, ensuring it is reserved while the transaction continues under the agreed terms until completion." },
   4: { num: "04", title: "Complete Your Payment", desc: "Pay the remaining balance securely." },
   5: { num: "05", title: "Pickup or Delivery", desc: "Choose how you want to receive your item." },
   6: { num: "06", title: "What If You Can't Complete?", desc: "You can get a refund if you change your mind (terms apply)." }
