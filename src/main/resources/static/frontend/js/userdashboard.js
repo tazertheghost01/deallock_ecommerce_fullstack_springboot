@@ -555,12 +555,14 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── Payment Preview Elements ──
 const elements = {
   valueInput: document.getElementById('deal-value'),
+  itemSizeSelect: document.getElementById('item-size'), // Added: Item Size Dropdown
   weeksSelect: document.getElementById('weeks'),
   customWeeks: document.getElementById('custom-weeks'),
   customGroup: document.getElementById('custom-weeks-group'),
   extraFeeRow: document.getElementById('extra-fee-row'),
   breakdown: document.getElementById('breakdown'),
   displayValue: document.getElementById('display-value'),
+  displayDelivery: document.getElementById('display-delivery'), // Added: Delivery Display Element
   displayService: document.getElementById('display-service-fee'),
   displayExtra: document.getElementById('display-extra-fee'),
   displayVat: document.getElementById('display-vat'),
@@ -574,6 +576,10 @@ function updatePaymentPreview() {
   const value = parseFloat(elements.valueInput?.value) || 0;
   const isCustom = elements.weeksSelect?.value === 'custom';
   
+  // Get selected delivery fee from the item size attribute
+  const selectedOption = elements.itemSizeSelect?.options[elements.itemSizeSelect.selectedIndex];
+  const deliveryFee = parseFloat(selectedOption?.getAttribute('data-price')) || 0;
+
   // Toggle custom input field visibility
   if (isCustom) {
     elements.customGroup?.classList.remove('hidden');
@@ -595,8 +601,8 @@ function updatePaymentPreview() {
   let remainingBase = 0;
 
   if (weeks === 1) {
-    // Full payment: 0% service fee
-    serviceFee = 0;
+    // Fixed: Now charges a 1-week service fee (5% of the deal value)
+    serviceFee = value * 0.05 * 1; 
     upfrontBase = value;
     remainingBase = 0;
   } else {
@@ -613,22 +619,27 @@ function updatePaymentPreview() {
 
   // Total Financed Remainder (Balance + Fees)
   const totalRemainder = remainingBase + serviceFee + extraFee;
-  
-  // Subtotal combined (Upfront cash base + total financed balance)
-  const subTotal = upfrontBase + totalRemainder;
-  
+
+  // Subtotal combined (Upfront base + total financed balance + delivery fee)
+  const subTotal = upfrontBase + totalRemainder + deliveryFee;
+
   // VAT applied to everything
   const vat = subTotal * 0.075;
   const grandTotal = subTotal + vat;
 
   // Final payment allocation
-  // Upfront payment includes 50% of the item cost + 50% of the calculated total VAT
-  const upfront = (upfrontBase) + (vat * 0.5);
-  // Weekly structure pays off the remaining financed chunk + the remaining half of the VAT
-  const weekly = weeks > 1 ? ((totalRemainder) + (vat * 0.5)) / weeks : 0;
+  // If 1 week, 100% of VAT goes upfront. If installment, it splits 50/50.
+  const vatAllocationKey = weeks === 1 ? 1.0 : 0.5;
+  
+  // Upfront payment includes upfront item portion + 100% of delivery fee + allocated VAT
+  const upfront = upfrontBase + deliveryFee + (vat * vatAllocationKey);
+
+  // Weekly structure pays off remaining financed chunk + remaining VAT split
+  const weekly = weeks > 1 ? (totalRemainder + (vat * (1 - vatAllocationKey))) / weeks : 0;
 
   // DOM Updates
   if (elements.displayValue) elements.displayValue.textContent = value.toLocaleString();
+  if (elements.displayDelivery) elements.displayDelivery.textContent = `NGN ${deliveryFee.toLocaleString()}`;
   if (elements.displayService) elements.displayService.textContent = `NGN ${serviceFee.toLocaleString()}`;
   
   if (extraFeePercent > 0) {
@@ -650,14 +661,18 @@ function updatePaymentPreview() {
 
 function resetPaymentDisplays() {
   const elementsToReset = [
-    elements.displayValue, elements.displayService, elements.displayExtra, 
-    elements.displayVat, elements.displayTotal, elements.upfrontEl, elements.weeklyAmountEl
+    elements.displayValue,
+    elements.displayDelivery,
+    elements.displayService,
+    elements.displayExtra,
+    elements.displayVat,
+    elements.displayTotal,
+    elements.upfrontEl,
+    elements.weeklyAmountEl
   ];
-  
   elementsToReset.forEach(el => {
     if (el) el.textContent = '0';
   });
-
   if (elements.weeklyCountEl) elements.weeklyCountEl.textContent = '0';
   elements.extraFeeRow?.classList.add('hidden');
   elements.breakdown?.classList.add('hidden');
@@ -665,11 +680,13 @@ function resetPaymentDisplays() {
 
 // ── Event Listeners ──
 elements.valueInput?.addEventListener('input', updatePaymentPreview);
+elements.itemSizeSelect?.addEventListener('change', updatePaymentPreview); // Added listener for size changes
 elements.weeksSelect?.addEventListener('change', updatePaymentPreview);
 elements.customWeeks?.addEventListener('input', updatePaymentPreview);
 
 // Initial Run
 updatePaymentPreview();
+
 
 
   // ====================== FORM SUBMISSION ======================
