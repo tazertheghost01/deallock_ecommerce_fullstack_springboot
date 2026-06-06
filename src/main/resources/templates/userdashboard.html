@@ -584,7 +584,10 @@
     <span>Delivery Fee</span>
     <strong id="display-delivery">NGN 0</strong>
   </div>
-
+  <div class="flex justify-between py-2 border-b border-gray-100">
+    <span>Service Fee (5% × weeks)</span>
+    <strong id="display-service-fee">NGN 0</strong>
+  </div>
   <div class="flex justify-between py-2 border-b border-gray-100">
     <span>VAT (7.5%)</span>
     <strong id="display-vat">NGN 0</strong>
@@ -614,10 +617,6 @@
       Remaining 50% payable over your selected weeks.
     </p>
   </div>
-  <div class="flex justify-between py-2 border-b border-gray-100">
-    <span>Service Fee (5% per week)</span>
-    <strong id="display-service-fee">NGN 0</strong>
-  </div>
   <!-- hidden until custom weeks > 2 -->
   <div class="flex justify-between py-2 border-b border-gray-100 hidden" id="extra-fee-row">
     <span>Extra 5% (extended plan)</span>
@@ -631,6 +630,9 @@
     <span>Weekly payment &times; <span id="weekly-count">0</span></span>
     <strong id="weekly-amount">NGN 0</strong>
   </div>
+  <p id="weekly-sublabel" class="text-xs text-gray-500 hidden">
+    Your balance will be divided evenly across the selected weekly payments.
+  </p>
 </div>
 </div>
 

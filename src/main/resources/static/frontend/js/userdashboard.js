@@ -564,6 +564,7 @@ document.addEventListener('DOMContentLoaded', () => {
     balanceRow:      document.getElementById('balance-row'),
     balanceEl:       document.getElementById('balance-amount'),
     weeklyRow:       document.getElementById('weekly-row'),
+    weeklySublabel:  document.getElementById('weekly-sublabel'),
     weeklyCountEl:   document.getElementById('weekly-count'),
     weeklyAmountEl:  document.getElementById('weekly-amount')
   };
@@ -599,19 +600,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ── Fee calculations ──────────────────────────────────────
-    let serviceFee    = 0;
-    let remainingBase = 0; // the item-value portion deferred to installments
-
-    if (weeks === 1) {
-      // Full payment upfront — service fee is 5% of item value
-      serviceFee    = value * 0.05;
-      remainingBase = 0;
-    } else {
-      // Installment split — 50% item value deferred
-      remainingBase = value * 0.50;
-      // Service fee on the deferred portion only, compounded per week
-      serviceFee    = remainingBase * 0.05 * weeks;
-    }
+    const serviceFee    = value * 0.05 * weeks;
+    const remainingBase = weeks === 1 ? 0 : value * 0.50;
 
     // Extra 5% penalty for custom plans beyond 2 weeks
     const extraFeePercent = (isCustom && weeks > 2) ? 0.05 : 0;
@@ -655,6 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
       els.upfrontSublabel?.classList.add('hidden');
       els.balanceRow?.classList.add('hidden');
       els.weeklyRow?.classList.add('hidden');
+      els.weeklySublabel?.classList.add('hidden');
       if (els.balanceEl)      els.balanceEl.textContent      = 'NGN 0';
       if (els.weeklyCountEl)  els.weeklyCountEl.textContent  = '0';
       if (els.weeklyAmountEl) els.weeklyAmountEl.textContent = 'NGN 0';
@@ -664,6 +655,7 @@ document.addEventListener('DOMContentLoaded', () => {
       els.upfrontSublabel?.classList.remove('hidden');
       els.balanceRow?.classList.remove('hidden');
       els.weeklyRow?.classList.remove('hidden');
+      els.weeklySublabel?.classList.remove('hidden');
       if (els.balanceEl)      els.balanceEl.textContent      = fmt(balance);
       if (els.weeklyCountEl)  els.weeklyCountEl.textContent  = weeks;
       if (els.weeklyAmountEl) els.weeklyAmountEl.textContent = fmt(weekly);
@@ -684,6 +676,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (els.weeklyCountEl)  els.weeklyCountEl.textContent  = '0';
     if (els.upfrontLabel)   els.upfrontLabel.textContent   = 'Full payment (due immediately)';
     els.upfrontSublabel?.classList.add('hidden');
+    els.weeklySublabel?.classList.add('hidden');
     els.balanceRow?.classList.add('hidden');
     els.weeklyRow?.classList.add('hidden');
     els.extraFeeRow?.classList.add('hidden');
