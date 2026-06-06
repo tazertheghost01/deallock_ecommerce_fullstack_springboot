@@ -108,9 +108,9 @@ review it and update the status usually within a few hours.
 ## How do installments work?
 
 You choose either:
-- **1 week (full payment)** — you repay the entire balance DealLock fronted in
-  one week.
-- **2 weeks (standard max)** — you repay in two equal weekly installments.
+- **1 week** — you pay 50% up front and the remaining 50% within 7 days.
+- **2 weeks (standard max)** — you pay 50% up front and the remaining balance in
+  two equal weekly installments.
 
 If you need more than 2 weeks, you can select "Request more than 2 weeks" on
 the deal form. DealLock will review this manually based on the item and amount.

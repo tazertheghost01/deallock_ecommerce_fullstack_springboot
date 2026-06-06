@@ -601,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Fee calculations ──────────────────────────────────────
     const serviceFee    = value * 0.05 * weeks;
-    const remainingBase = weeks === 1 ? 0 : value * 0.50;
+    const remainingBase = value * 0.50;
 
     // Extra 5% penalty for custom plans beyond 2 weeks
     const extraFeePercent = (isCustom && weeks > 2) ? 0.05 : 0;
@@ -615,13 +615,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const grandTotal = subTotal + vat;
 
     // ── Payment schedule ─────────────────────────────────────
-    // For 1-week (full pay): entire grand total is due upfront, no balance.
-    // For 2+ weeks: upfront = 50% of grand total; balance = remaining 50%.
-    const upfront = weeks === 1 ? grandTotal : grandTotal * 0.50;
-    const balance = weeks === 1 ? 0          : grandTotal * 0.50;
+    // All plans use a 50/50 split: 50% upfront, 50% remaining.
+    const upfront = grandTotal * 0.50;
+    const balance = grandTotal * 0.50;
 
     // Weekly instalments pay off the balance evenly
-    const weekly  = weeks > 1 ? balance / weeks : 0;
+    const weekly  = weeks > 0 ? balance / weeks : 0;
 
     // ── Update fee summary card ───────────────────────────────
     if (els.displayValue)    els.displayValue.textContent    = value.toLocaleString('en-NG');
@@ -639,27 +638,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (els.displayTotal) els.displayTotal.textContent = fmt(grandTotal);
 
     // ── Update payment schedule card ─────────────────────────
-    if (weeks === 1) {
-      // 1-week: full payment upfront, no balance or weekly rows
-      if (els.upfrontLabel)    els.upfrontLabel.textContent = 'Full payment (due immediately)';
-      els.upfrontSublabel?.classList.add('hidden');
-      els.balanceRow?.classList.add('hidden');
-      els.weeklyRow?.classList.add('hidden');
-      els.weeklySublabel?.classList.add('hidden');
-      if (els.balanceEl)      els.balanceEl.textContent      = 'NGN 0';
-      if (els.weeklyCountEl)  els.weeklyCountEl.textContent  = '0';
-      if (els.weeklyAmountEl) els.weeklyAmountEl.textContent = 'NGN 0';
-    } else {
-      // 2+ weeks: 50% upfront, balance in weekly instalments
-      if (els.upfrontLabel)    els.upfrontLabel.textContent = 'Upfront payment';
-      els.upfrontSublabel?.classList.remove('hidden');
-      els.balanceRow?.classList.remove('hidden');
-      els.weeklyRow?.classList.remove('hidden');
-      els.weeklySublabel?.classList.remove('hidden');
-      if (els.balanceEl)      els.balanceEl.textContent      = fmt(balance);
-      if (els.weeklyCountEl)  els.weeklyCountEl.textContent  = weeks;
-      if (els.weeklyAmountEl) els.weeklyAmountEl.textContent = fmt(weekly);
-    }
+    // All plans now use a 50/50 split: 50% upfront, 50% remaining.
+    if (els.upfrontLabel)    els.upfrontLabel.textContent = 'Upfront payment';
+    els.upfrontSublabel?.classList.remove('hidden');
+    els.balanceRow?.classList.remove('hidden');
+    els.weeklyRow?.classList.remove('hidden');
+    els.weeklySublabel?.classList.remove('hidden');
+    if (els.balanceEl)      els.balanceEl.textContent      = fmt(balance);
+    if (els.weeklyCountEl)  els.weeklyCountEl.textContent  = weeks;
+    if (els.weeklyAmountEl) els.weeklyAmountEl.textContent = fmt(weekly);
+    if (els.upfrontSublabel) els.upfrontSublabel.textContent = weeks === 1
+      ? 'Pay 50% now and the remaining 50% in 7 days.'
+      : 'Pay 50% now and the remaining balance in weekly installments.';
 
     if (els.upfrontEl) els.upfrontEl.textContent = fmt(upfront);
 
@@ -674,7 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ].forEach(el => { if (el) el.textContent = '0'; });
 
     if (els.weeklyCountEl)  els.weeklyCountEl.textContent  = '0';
-    if (els.upfrontLabel)   els.upfrontLabel.textContent   = 'Full payment (due immediately)';
+    if (els.upfrontLabel)   els.upfrontLabel.textContent   = 'Upfront payment';
     els.upfrontSublabel?.classList.add('hidden');
     els.weeklySublabel?.classList.add('hidden');
     els.balanceRow?.classList.add('hidden');
