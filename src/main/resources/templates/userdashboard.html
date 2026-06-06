@@ -561,6 +561,14 @@
             <option value="custom">Request more than 2 weeks</option>
           </select>
         </div>
+
+      <!-- Custom weeks — shown when "Request more than 2 weeks" is selected. id="custom-weeks-group" toggled by JS -->
+      <div id="custom-weeks-group" class="hidden mb-4">
+        <label for="custom-weeks" class="block mb-1.5 font-medium text-gray-700">Requested weeks (3 or more)</label>
+        <input type="number" id="custom-weeks" name="customWeeks" min="3" class="w-full max-w-[160px] px-4 py-3 border border-gray-300 rounded-xl text-base" placeholder="e.g. 4, 6, 8...">
+        <small class="text-gray-500 mt-1 block">Plans longer than 2 weeks attract an extra 5% fee.</small>
+      </div>
+
       <!-- ── Payment Plan ──
            JS (updatePaymentPreview) reads:
              #deal-value, #weeks, #custom-weeks, #custom-weeks-group
@@ -596,13 +604,6 @@
     <span>Total Amount to Pay</span>
     <strong id="display-total">NGN 0</strong>
   </div>
-</div>
-
-<!-- Custom weeks — shown when "Request more than 2 weeks" is selected. id="custom-weeks-group" toggled by JS -->
-<div id="custom-weeks-group" class="hidden mb-4">
-  <label for="custom-weeks" class="block mb-1.5 font-medium text-gray-700">Requested weeks (3 or more)</label>
-  <input type="number" id="custom-weeks" name="customWeeks" min="3" class="w-full max-w-[160px] px-4 py-3 border border-gray-300 rounded-xl text-base" placeholder="e.g. 4, 6, 8...">
-  <small class="text-gray-500 mt-1 block">Plans longer than 2 weeks attract an extra 5% fee.</small>
 </div>
 
 <!-- Payment schedule preview — shown by JS once value + weeks are filled -->
