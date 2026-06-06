@@ -35,7 +35,6 @@ function naira(amount) {
 }
 
 // apiJson helper — treats non-JSON responses as session expiry
-// (Spring Security redirects expired sessions to /login as HTML)
 async function apiJson(url, options = {}) {
   const res = await fetch(url, {
     credentials: 'same-origin',
@@ -62,7 +61,7 @@ async function apiJson(url, options = {}) {
 // ====================== DEALS STATE ======================
 
 let dealsCache = Array.isArray(window.__DEALLOCK_DEALS__) ? window.__DEALLOCK_DEALS__ : [];
-let dealFilter = 'all'; // all | active | completed
+let dealFilter = 'all';
 let ordersCache = [];
 
 // ====================== DEAL HELPERS ======================
@@ -196,15 +195,15 @@ async function requestPaymentExtension(dealId) {
 
 function orderStatusClass(status) {
   switch ((status || '').toUpperCase()) {
-    case 'PENDING_PAYMENT':     return 'bg-yellow-100 text-yellow-700';
-    case 'PAYMENT_SUBMITTED':   return 'bg-blue-100 text-blue-700';
-    case 'PAYMENT_NOT_RECEIVED':return 'bg-red-100 text-red-700';
-    case 'PAYMENT_RECEIVED':    return 'bg-indigo-100 text-indigo-700';
-    case 'PROCESSING':          return 'bg-purple-100 text-purple-700';
-    case 'SHIPPED':             return 'bg-cyan-100 text-cyan-700';
-    case 'DELIVERED':           return 'bg-emerald-100 text-emerald-700';
-    case 'REVIEW':              return 'bg-gray-200 text-gray-700';
-    default:                    return 'bg-gray-100 text-gray-700';
+    case 'PENDING_PAYMENT':      return 'bg-yellow-100 text-yellow-700';
+    case 'PAYMENT_SUBMITTED':    return 'bg-blue-100 text-blue-700';
+    case 'PAYMENT_NOT_RECEIVED': return 'bg-red-100 text-red-700';
+    case 'PAYMENT_RECEIVED':     return 'bg-indigo-100 text-indigo-700';
+    case 'PROCESSING':           return 'bg-purple-100 text-purple-700';
+    case 'SHIPPED':              return 'bg-cyan-100 text-cyan-700';
+    case 'DELIVERED':            return 'bg-emerald-100 text-emerald-700';
+    case 'REVIEW':               return 'bg-gray-200 text-gray-700';
+    default:                     return 'bg-gray-100 text-gray-700';
   }
 }
 
@@ -270,7 +269,7 @@ async function loadOrders() {
 
 async function subscribeCurrentUser(source = 'dashboard-deal-popup') {
   const emailFromWindow = (window.__DEALLOCK_CURRENT_EMAIL__ || '').toString().trim();
-  const emailFromInput = document.querySelector('#settings-tab input[type="email"]')?.value?.trim() || '';
+  const emailFromInput  = document.querySelector('#settings-tab input[type="email"]')?.value?.trim() || '';
   const email = emailFromWindow || emailFromInput;
   if (!email) throw new Error('Email not found');
 
@@ -278,11 +277,7 @@ async function subscribeCurrentUser(source = 'dashboard-deal-popup') {
     method: 'POST',
     credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({
-      email,
-      name: window.__DEALLOCK_CURRENT_NAME__ || '',
-      source
-    })
+    body: JSON.stringify({ email, name: window.__DEALLOCK_CURRENT_NAME__ || '', source })
   });
   const payload = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(payload?.message || `Request failed (${res.status})`);
@@ -298,7 +293,7 @@ function promptNewsletterAfterDeal() {
       <p class="text-sm text-gray-700 mb-5">Would you like to subscribe so you hear from us faster on deals and updates?</p>
       <div class="flex gap-3">
         <button id="sub-yes" class="flex-1 bg-black text-white py-2.5 rounded-xl">Yes, subscribe me</button>
-        <button id="sub-no" class="flex-1 border border-gray-300 py-2.5 rounded-xl">No, thanks</button>
+        <button id="sub-no"  class="flex-1 border border-gray-300 py-2.5 rounded-xl">No, thanks</button>
       </div>
     </div>
   `;
@@ -410,12 +405,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── Tab switching ──
-  // CSS controls visibility via .tab-content { display:none } / .tab-content.active { display:block }
-  // so we manage the 'active' class here, NOT 'hidden'.
   window.showTab = function(tab) {
-    document.querySelectorAll('.tab-content').forEach(el => {
-      el.classList.remove('active');
-    });
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     const tabEl = document.getElementById(tab + '-tab');
     if (tabEl) tabEl.classList.add('active');
 
@@ -448,18 +439,16 @@ document.addEventListener('DOMContentLoaded', () => {
   (function () {
     let startX = 0;
     let startY = 0;
-
     document.addEventListener('touchstart', e => {
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
     }, { passive: true });
-
     document.addEventListener('touchend', e => {
       const dx = e.changedTouches[0].clientX - startX;
       const dy = Math.abs(e.changedTouches[0].clientY - startY);
-      if (dy > 40) return; // ignore vertical-dominant swipes
-      if (dx > 60 && startX < 30) window.openSidebar();  // right swipe from left edge
-      if (dx < -60) window.closeSidebar();                // left swipe anywhere closes
+      if (dy > 40) return;
+      if (dx > 60 && startX < 30) window.openSidebar();
+      if (dx < -60) window.closeSidebar();
     }, { passive: true });
   })();
 
@@ -552,149 +541,170 @@ document.addEventListener('DOMContentLoaded', () => {
 
   removeBtn?.addEventListener('click', clearPreview);
 
-// ── Payment Preview Elements ──
-const elements = {
-  valueInput: document.getElementById('deal-value'),
-  itemSizeSelect: document.getElementById('item-size'), // Added: Item Size Dropdown
-  weeksSelect: document.getElementById('weeks'),
-  customWeeks: document.getElementById('custom-weeks'),
-  customGroup: document.getElementById('custom-weeks-group'),
-  extraFeeRow: document.getElementById('extra-fee-row'),
-  breakdown: document.getElementById('breakdown'),
-  displayValue: document.getElementById('display-value'),
-  displayDelivery: document.getElementById('display-delivery'), // Added: Delivery Display Element
-  displayService: document.getElementById('display-service-fee'),
-  displayExtra: document.getElementById('display-extra-fee'),
-  displayVat: document.getElementById('display-vat'),
-  displayTotal: document.getElementById('display-total'),
-  upfrontEl: document.getElementById('upfront-amount'),
-  weeklyCountEl: document.getElementById('weekly-count'),
-  weeklyAmountEl: document.getElementById('weekly-amount')
-};
+  // ── Payment Preview Elements ──
+  const els = {
+    valueInput:     document.getElementById('deal-value'),
+    itemSizeSelect: document.getElementById('item-size'),
+    weeksSelect:    document.getElementById('weeks'),
+    customWeeks:    document.getElementById('custom-weeks'),
+    customGroup:    document.getElementById('custom-weeks-group'),
+    extraFeeRow:    document.getElementById('extra-fee-row'),
+    breakdown:      document.getElementById('breakdown'),
+    // Fee summary (top card)
+    displayValue:    document.getElementById('display-value'),
+    displayDelivery: document.getElementById('display-delivery'),
+    displayService:  document.getElementById('display-service-fee'),
+    displayExtra:    document.getElementById('display-extra-fee'),
+    displayVat:      document.getElementById('display-vat'),
+    displayTotal:    document.getElementById('display-total'),
+    // Payment schedule (bottom card)
+    upfrontEl:       document.getElementById('upfront-amount'),
+    upfrontLabel:    document.getElementById('upfront-label'),
+    upfrontSublabel: document.getElementById('upfront-sublabel'),
+    balanceRow:      document.getElementById('balance-row'),
+    balanceEl:       document.getElementById('balance-amount'),
+    weeklyRow:       document.getElementById('weekly-row'),
+    weeklyCountEl:   document.getElementById('weekly-count'),
+    weeklyAmountEl:  document.getElementById('weekly-amount')
+  };
 
-function updatePaymentPreview() {
-  const value = parseFloat(elements.valueInput?.value) || 0;
-  const isCustom = elements.weeksSelect?.value === 'custom';
-  
-  // Get selected delivery fee from the item size attribute
-  const selectedOption = elements.itemSizeSelect?.options[elements.itemSizeSelect.selectedIndex];
-  const deliveryFee = parseFloat(selectedOption?.getAttribute('data-price')) || 0;
-
-  // Toggle custom input field visibility
-  if (isCustom) {
-    elements.customGroup?.classList.remove('hidden');
-  } else {
-    elements.customGroup?.classList.add('hidden');
-    if (elements.customWeeks) elements.customWeeks.value = '';
+  function fmt(n) {
+    return 'NGN ' + Math.round(n).toLocaleString('en-NG');
   }
 
-  let weeks = isCustom ? parseInt(elements.customWeeks?.value) || 0 : parseInt(elements.weeksSelect?.value) || 0;
+  function updatePaymentPreview() {
+    const value    = parseFloat(els.valueInput?.value) || 0;
+    const isCustom = els.weeksSelect?.value === 'custom';
 
-  // Validation Check
-  if (value < 1000 || weeks < 1) {
-    resetPaymentDisplays();
-    return;
+    // Delivery fee from selected item size
+    const selectedOption = els.itemSizeSelect?.options[els.itemSizeSelect.selectedIndex];
+    const deliveryFee    = parseFloat(selectedOption?.getAttribute('data-price')) || 0;
+
+    // Show / hide custom weeks input
+    if (isCustom) {
+      els.customGroup?.classList.remove('hidden');
+    } else {
+      els.customGroup?.classList.add('hidden');
+      if (els.customWeeks) els.customWeeks.value = '';
+    }
+
+    const weeks = isCustom
+      ? parseInt(els.customWeeks?.value) || 0
+      : parseInt(els.weeksSelect?.value) || 0;
+
+    // Need both value and weeks before showing anything
+    if (value < 1000 || weeks < 1) {
+      resetPaymentDisplays();
+      return;
+    }
+
+    // ── Fee calculations ──────────────────────────────────────
+    let serviceFee    = 0;
+    let remainingBase = 0; // the item-value portion deferred to installments
+
+    if (weeks === 1) {
+      // Full payment upfront — service fee is 5% of item value
+      serviceFee    = value * 0.05;
+      remainingBase = 0;
+    } else {
+      // Installment split — 50% item value deferred
+      remainingBase = value * 0.50;
+      // Service fee on the deferred portion only, compounded per week
+      serviceFee    = remainingBase * 0.05 * weeks;
+    }
+
+    // Extra 5% penalty for custom plans beyond 2 weeks
+    const extraFeePercent = (isCustom && weeks > 2) ? 0.05 : 0;
+    const extraFee        = (remainingBase + serviceFee) * extraFeePercent;
+
+    // Grand total breakdown
+    // subTotal = item value + delivery + all fees (service + extra)
+    const feesTotal  = serviceFee + extraFee;
+    const subTotal   = value + deliveryFee + feesTotal;
+    const vat        = subTotal * 0.075;
+    const grandTotal = subTotal + vat;
+
+    // ── Payment schedule ─────────────────────────────────────
+    // For 1-week (full pay): entire grand total is due upfront, no balance.
+    // For 2+ weeks: upfront = 50% of grand total; balance = remaining 50%.
+    const upfront = weeks === 1 ? grandTotal : grandTotal * 0.50;
+    const balance = weeks === 1 ? 0          : grandTotal * 0.50;
+
+    // Weekly instalments pay off the balance evenly
+    const weekly  = weeks > 1 ? balance / weeks : 0;
+
+    // ── Update fee summary card ───────────────────────────────
+    if (els.displayValue)    els.displayValue.textContent    = value.toLocaleString('en-NG');
+    if (els.displayDelivery) els.displayDelivery.textContent = fmt(deliveryFee);
+    if (els.displayService)  els.displayService.textContent  = fmt(serviceFee);
+
+    if (extraFeePercent > 0) {
+      els.extraFeeRow?.classList.remove('hidden');
+      if (els.displayExtra) els.displayExtra.textContent = fmt(extraFee);
+    } else {
+      els.extraFeeRow?.classList.add('hidden');
+    }
+
+    if (els.displayVat)   els.displayVat.textContent   = fmt(vat);
+    if (els.displayTotal) els.displayTotal.textContent = fmt(grandTotal);
+
+    // ── Update payment schedule card ─────────────────────────
+    if (weeks === 1) {
+      // 1-week: full payment upfront, no balance or weekly rows
+      if (els.upfrontLabel)    els.upfrontLabel.textContent = 'Full payment (due immediately)';
+      els.upfrontSublabel?.classList.add('hidden');
+      els.balanceRow?.classList.add('hidden');
+      els.weeklyRow?.classList.add('hidden');
+      if (els.balanceEl)      els.balanceEl.textContent      = 'NGN 0';
+      if (els.weeklyCountEl)  els.weeklyCountEl.textContent  = '0';
+      if (els.weeklyAmountEl) els.weeklyAmountEl.textContent = 'NGN 0';
+    } else {
+      // 2+ weeks: 50% upfront, balance in weekly instalments
+      if (els.upfrontLabel)    els.upfrontLabel.textContent = 'Upfront payment';
+      els.upfrontSublabel?.classList.remove('hidden');
+      els.balanceRow?.classList.remove('hidden');
+      els.weeklyRow?.classList.remove('hidden');
+      if (els.balanceEl)      els.balanceEl.textContent      = fmt(balance);
+      if (els.weeklyCountEl)  els.weeklyCountEl.textContent  = weeks;
+      if (els.weeklyAmountEl) els.weeklyAmountEl.textContent = fmt(weekly);
+    }
+
+    if (els.upfrontEl) els.upfrontEl.textContent = fmt(upfront);
+
+    els.breakdown?.classList.remove('hidden');
   }
 
-  let serviceFee = 0;
-  let upfrontBase = value;
-  let remainingBase = 0;
+  function resetPaymentDisplays() {
+    [
+      els.displayValue, els.displayDelivery, els.displayService,
+      els.displayExtra, els.displayVat, els.displayTotal,
+      els.upfrontEl, els.balanceEl, els.weeklyAmountEl
+    ].forEach(el => { if (el) el.textContent = '0'; });
 
-  if (weeks === 1) {
-    // Fixed: Now charges a 1-week service fee (5% of the deal value)
-    serviceFee = value * 0.05 * 1; 
-    upfrontBase = value;
-    remainingBase = 0;
-  } else {
-    // Installments: 50% split
-    upfrontBase = value * 0.50;
-    remainingBase = value * 0.50;
-    // Service fee applies ONLY to the remainder base
-    serviceFee = remainingBase * 0.05 * weeks;
+    if (els.weeklyCountEl)  els.weeklyCountEl.textContent  = '0';
+    if (els.upfrontLabel)   els.upfrontLabel.textContent   = 'Full payment (due immediately)';
+    els.upfrontSublabel?.classList.add('hidden');
+    els.balanceRow?.classList.add('hidden');
+    els.weeklyRow?.classList.add('hidden');
+    els.extraFeeRow?.classList.add('hidden');
+    els.breakdown?.classList.add('hidden');
   }
 
-  // Extra fee penalty (5%) on custom arrangements over 2 weeks
-  const extraFeePercent = (isCustom && weeks > 2) ? 0.05 : 0;
-  const extraFee = (remainingBase + serviceFee) * extraFeePercent;
+  // ── Event listeners ──
+  els.valueInput?.addEventListener('input', updatePaymentPreview);
+  els.itemSizeSelect?.addEventListener('change', updatePaymentPreview);
+  els.weeksSelect?.addEventListener('change', updatePaymentPreview);
+  els.customWeeks?.addEventListener('input', updatePaymentPreview);
 
-  // Total Financed Remainder (Balance + Fees)
-  const totalRemainder = remainingBase + serviceFee + extraFee;
-
-  // Subtotal combined (Upfront base + total financed balance + delivery fee)
-  const subTotal = upfrontBase + totalRemainder + deliveryFee;
-
-  // VAT applied to everything
-  const vat = subTotal * 0.075;
-  const grandTotal = subTotal + vat;
-
-  // Final payment allocation
-  // If 1 week, 100% of VAT goes upfront. If installment, it splits 50/50.
-  const vatAllocationKey = weeks === 1 ? 1.0 : 0.5;
-  
-  // Upfront payment includes upfront item portion + 100% of delivery fee + allocated VAT
-  const upfront = upfrontBase + deliveryFee + (vat * vatAllocationKey);
-
-  // Weekly structure pays off remaining financed chunk + remaining VAT split
-  const weekly = weeks > 1 ? (totalRemainder + (vat * (1 - vatAllocationKey))) / weeks : 0;
-
-  // DOM Updates
-  if (elements.displayValue) elements.displayValue.textContent = value.toLocaleString();
-  if (elements.displayDelivery) elements.displayDelivery.textContent = `NGN ${deliveryFee.toLocaleString()}`;
-  if (elements.displayService) elements.displayService.textContent = `NGN ${serviceFee.toLocaleString()}`;
-  
-  if (extraFeePercent > 0) {
-    elements.extraFeeRow?.classList.remove('hidden');
-    if (elements.displayExtra) elements.displayExtra.textContent = `NGN ${extraFee.toLocaleString()}`;
-  } else {
-    elements.extraFeeRow?.classList.add('hidden');
-  }
-
-  if (elements.displayVat) elements.displayVat.textContent = `NGN ${vat.toLocaleString()}`;
-  if (elements.displayTotal) elements.displayTotal.textContent = `NGN ${grandTotal.toLocaleString()}`;
-  if (elements.upfrontEl) elements.upfrontEl.textContent = `NGN ${Math.round(upfront).toLocaleString()}`;
-  
-  if (elements.weeklyCountEl) elements.weeklyCountEl.textContent = weeks === 1 ? 0 : weeks;
-  if (elements.weeklyAmountEl) elements.weeklyAmountEl.textContent = `NGN ${Math.round(weekly).toLocaleString()}`;
-
-  elements.breakdown?.classList.remove('hidden');
-}
-
-function resetPaymentDisplays() {
-  const elementsToReset = [
-    elements.displayValue,
-    elements.displayDelivery,
-    elements.displayService,
-    elements.displayExtra,
-    elements.displayVat,
-    elements.displayTotal,
-    elements.upfrontEl,
-    elements.weeklyAmountEl
-  ];
-  elementsToReset.forEach(el => {
-    if (el) el.textContent = '0';
-  });
-  if (elements.weeklyCountEl) elements.weeklyCountEl.textContent = '0';
-  elements.extraFeeRow?.classList.add('hidden');
-  elements.breakdown?.classList.add('hidden');
-}
-
-// ── Event Listeners ──
-elements.valueInput?.addEventListener('input', updatePaymentPreview);
-elements.itemSizeSelect?.addEventListener('change', updatePaymentPreview); // Added listener for size changes
-elements.weeksSelect?.addEventListener('change', updatePaymentPreview);
-elements.customWeeks?.addEventListener('input', updatePaymentPreview);
-
-// Initial Run
-updatePaymentPreview();
-
-
+  // Initial run
+  updatePaymentPreview();
 
   // ====================== FORM SUBMISSION ======================
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const formData    = new FormData(form);
-    const submitBtn   = form.querySelector('button[type="submit"]');
+    const formData     = new FormData(form);
+    const submitBtn    = form.querySelector('button[type="submit"]');
     const originalText = submitBtn ? submitBtn.textContent : 'Lock Deal';
 
     const title            = formData.get('deal-title');
@@ -740,11 +750,9 @@ updatePaymentPreview();
 
       showToast('Deal created successfully! Pending Approval.', 'success');
       promptNewsletterAfterDeal();
-
       window.closeModal();
       form.reset();
       clearPreview();
-
       await loadDeals();
 
     } catch (err) {
@@ -772,22 +780,22 @@ updatePaymentPreview();
   showNewDealIndicatorIfRequested();
   loadDeals();
 
-  // ── Expose globals (for inline onclick attributes in HTML) ──
-  window.showToast              = showToast;
-  window.showShortPopup         = showShortPopup;
-  window.escapeHtml             = escapeHtml;
-  window.naira                  = naira;
-  window.loadDeals              = loadDeals;
-  window.renderDealsTable       = renderDealsTable;
-  window.filterDeals            = filterDeals;
-  window.loadOrders             = loadOrders;
-  window.renderOrdersTable      = renderOrdersTable;
-  window.requestPaymentExtension= requestPaymentExtension;
-  window.previewImage           = previewImage;
-  window.changeProfilePicture   = changeProfilePicture;
-  window.uploadNewPicture       = uploadNewPicture;
-  window.toggleSidebar          = toggleSidebar;
-  window.openDateFilter         = openDateFilter;
-  window.scrollToTop            = scrollToTop;
+  // ── Expose globals ──
+  window.showToast               = showToast;
+  window.showShortPopup          = showShortPopup;
+  window.escapeHtml              = escapeHtml;
+  window.naira                   = naira;
+  window.loadDeals               = loadDeals;
+  window.renderDealsTable        = renderDealsTable;
+  window.filterDeals             = filterDeals;
+  window.loadOrders              = loadOrders;
+  window.renderOrdersTable       = renderOrdersTable;
+  window.requestPaymentExtension = requestPaymentExtension;
+  window.previewImage            = previewImage;
+  window.changeProfilePicture    = changeProfilePicture;
+  window.uploadNewPicture        = uploadNewPicture;
+  window.toggleSidebar           = toggleSidebar;
+  window.openDateFilter          = openDateFilter;
+  window.scrollToTop             = scrollToTop;
   window.promptNewsletterAfterDeal = promptNewsletterAfterDeal;
 });

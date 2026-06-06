@@ -605,9 +605,14 @@
 <!-- Payment schedule preview — shown by JS once value + weeks are filled -->
 <div id="breakdown" class="hidden mt-4 bg-gray-50 border border-gray-200 rounded-2xl p-4 text-sm">
   <h4 class="font-semibold mb-3">Payment Schedule Preview</h4>
-  <div class="flex justify-between py-2">
-    <span>Upfront (Includes 100% Delivery + 50% Item + VAT)</span>
-    <strong id="upfront-amount">NGN 0</strong>
+  <div class="space-y-2">
+    <div class="flex justify-between py-2">
+      <span id="upfront-label">Upfront (Includes 100% Delivery + 50% Item + VAT)</span>
+      <strong id="upfront-amount">NGN 0</strong>
+    </div>
+    <p id="upfront-sublabel" class="text-xs text-gray-500 hidden">
+      Remaining 50% payable over your selected weeks.
+    </p>
   </div>
   <div class="flex justify-between py-2 border-b border-gray-100">
     <span>Service Fee (5% per week)</span>
@@ -618,7 +623,11 @@
     <span>Extra 5% (extended plan)</span>
     <strong id="display-extra-fee">NGN 0</strong>
   </div>
-  <div class="flex justify-between py-2">
+  <div class="flex justify-between py-2 border-b border-gray-100 hidden" id="balance-row">
+    <span>Remaining balance</span>
+    <strong id="balance-amount">NGN 0</strong>
+  </div>
+  <div class="flex justify-between py-2 hidden" id="weekly-row">
     <span>Weekly payment &times; <span id="weekly-count">0</span></span>
     <strong id="weekly-amount">NGN 0</strong>
   </div>
@@ -726,8 +735,8 @@
       <div>
         <h3 class="text-lg font-semibold text-gray-900 mb-5">Stay Updated</h3>
         <p class="text-gray-600 mb-5 text-sm">Get the latest deals, payment tips, and new products from DealLock.</p>
-        <!-- handleSubscribe() is exposed globally by JS -->
-        <form id="newsletter-form" class="space-y-3" onsubmit="handleSubscribe(event)">
+        <!-- Newsletter form is submitted using JS when a handler exists -->
+        <form id="newsletter-form" class="space-y-3">
           <div class="relative">
             <input type="email" id="newsletter-email"
                    placeholder="Enter your email address"
