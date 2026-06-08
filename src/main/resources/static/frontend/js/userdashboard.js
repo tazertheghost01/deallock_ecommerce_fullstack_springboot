@@ -1,4 +1,4 @@
-﻿// ==================== FULL MERGED JAVASCRIPT FOR DASHBOARD + NEW MODAL ====================
+// ==================== FULL MERGED JAVASCRIPT FOR DASHBOARD + NEW MODAL ====================
 
 // ====================== UTILITY FUNCTIONS ======================
 
@@ -471,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ====================== NEW DEAL MODAL ======================
   const modal = document.getElementById('create-deal-modal');
   const form  = document.getElementById('new-deal-form');
-  const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
+  const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 
   window.openModal = function() {
     if (modal) modal.classList.add('active');
@@ -515,6 +515,18 @@ document.addEventListener('DOMContentLoaded', () => {
     previewContainer?.classList.add('hidden');
     if (uploadArea) uploadArea.style.display = 'block';
     if (fileInput) fileInput.value = '';
+  }
+
+  function fieldValue(id) {
+    return (document.getElementById(id)?.value || '').trim();
+  }
+
+  function buildAddress(prefix) {
+    return [
+      fieldValue(`${prefix}-street`),
+      fieldValue(`${prefix}-city`),
+      fieldValue(`${prefix}-state`)
+    ].filter(Boolean).join(', ');
   }
 
   fileInput?.addEventListener('change', e => {
@@ -690,6 +702,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitBtn    = form.querySelector('button[type="submit"]');
     const originalText = submitBtn ? submitBtn.textContent : 'Lock Deal';
 
+    const sellerAddress   = buildAddress('seller');
+    const deliveryAddress = buildAddress('delivery');
+    formData.set('seller-address', sellerAddress);
+    formData.set('delivery-address', deliveryAddress);
+
     const title            = formData.get('deal-title');
     const client           = formData.get('client-name');
     const value            = formData.get('deal-value');
@@ -697,8 +714,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const weeks            = formData.get('weeks');
     const customWeeksValue = formData.get('customWeeks');
 
-    if (!title || !client || !value) {
-      showToast('Please fill all required fields.', 'error');
+    if (!title || !client || !value || !sellerAddress || !deliveryAddress) {
+      showToast('Please fill all required fields, including seller and delivery street addresses.', 'error');
       return;
     }
     if (!weeks || weeks === '') {
@@ -710,7 +727,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     if (photo && photo.size > MAX_PHOTO_BYTES) {
-      showToast('Image is too large. Max 10MB.', 'error');
+      showToast('Image is too large. Max 2MB.', 'error');
       return;
     }
 
