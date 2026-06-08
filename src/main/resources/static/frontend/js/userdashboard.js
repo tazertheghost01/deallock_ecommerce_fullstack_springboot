@@ -702,7 +702,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitBtn    = form.querySelector('button[type="submit"]');
     const originalText = submitBtn ? submitBtn.textContent : 'Lock Deal';
 
-    const sellerAddress   = buildAddress('seller');
+    //const sellerAddress   = buildAddress('seller');
     const deliveryAddress = buildAddress('delivery');
     formData.set('seller-address', sellerAddress);
     formData.set('delivery-address', deliveryAddress);
