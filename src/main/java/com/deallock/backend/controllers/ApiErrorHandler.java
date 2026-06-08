@@ -9,6 +9,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -22,6 +23,13 @@ public class ApiErrorHandler {
     public ResponseEntity<?> handleMaxUpload(MaxUploadSizeExceededException ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
                 .body(Map.of("message", "Upload file is too large. Maximum allowed is 2MB."));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<?> handleMissingParameter(MissingServletRequestParameterException ex, HttpServletRequest request) {
+        String parameterName = ex == null ? "required field" : ex.getParameterName();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", "Missing required field: " + parameterName));
     }
 
     @ExceptionHandler(MultipartException.class)
