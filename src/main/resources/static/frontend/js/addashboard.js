@@ -554,6 +554,11 @@ function renderTable(data) {
           <span class="px-2 py-0.5 text-[8px] font-black border border-black">${status}</span>
         </td>
         <td class="p-4 text-center">${actionCell(item)}</td>
+        <td class="p-4 border-r border-black text-center">
+          <button onclick="openDealModal(${JSON.stringify(item).extraSpacesEscapedOrHandled})" class="underline font-bold hover:text-gray-600">
+            View Details
+          </button>
+        </td>
       </tr>
     `;
   }).join('');
@@ -632,6 +637,46 @@ async function loadDeals() {
       tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-[10px] text-red-600 font-bold uppercase">${e?.message || 'Failed to load deals.'}</td></tr>`;
     }
   }
+}
+
+function openDealModal(item) {
+  // Deal info
+  document.getElementById('modal-status').innerText = item.status || 'N/A';
+  document.getElementById('modal-created-at').innerText = item.createdAt || 'N/A';
+
+  document.getElementById('modal-item-title').innerText = item.dealTitle || item.dealTitle || 'N/A';
+  document.getElementById('modal-deal-value').innerText = item.dealValue || 'N/A';
+  document.getElementById('modal-item-size').innerText = item.itemSize || 'N/A';
+  document.getElementById('modal-description').innerText = item.description || 'No description provided.';
+
+  // Payment info
+  document.getElementById('modal-upfront').innerText = item.upfrontPayment || 'N/A';
+  document.getElementById('modal-weekly').innerText = item.weeklyPayment || 'N/A';
+
+  // Deal link
+  const linkEl = document.getElementById('modal-deal-link');
+  if (item.dealLink) {
+    linkEl.href = item.dealLink;
+    linkEl.style.display = 'block';
+  } else {
+    linkEl.style.display = 'none';
+  }
+
+  // Seller info (FIXED)
+  document.getElementById('modal-seller-name').innerText = item.clientName || item.sellerName || 'N/A';
+  document.getElementById('modal-seller-phone').innerText = item.sellerPhone || 'N/A';
+
+  document.getElementById('modal-seller-state').innerText = item.sellerState || 'N/A';
+  document.getElementById('modal-seller-city').innerText = item.sellerCity || 'N/A';
+  document.getElementById('modal-seller-street').innerText = item.sellerStreet || 'N/A';
+
+  // Delivery info (FIXED)
+  document.getElementById('modal-delivery-state').innerText = item.deliveryState || 'N/A';
+  document.getElementById('modal-delivery-city').innerText = item.deliveryCity || 'N/A';
+  document.getElementById('modal-delivery-street').innerText = item.deliveryStreet || 'N/A';
+
+  // Show modal
+  document.getElementById('dealModal').classList.remove('hidden');
 }
 
 function toggleNav(id) {
