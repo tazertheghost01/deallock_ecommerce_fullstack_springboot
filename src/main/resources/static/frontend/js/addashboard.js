@@ -544,6 +544,7 @@ function renderTable(data) {
       ? ((item?.status || 'PENDING_PAYMENT').toString().toUpperCase().replaceAll('_', ' '))
       : (isProduct ? (item?.listed ? 'LISTED' : 'UNLISTED') : ((item?.status || 'PENDING').toString().toUpperCase()));
 
+    const safeId = item?.id != null ? item.id : idx + 1;
     return `
       <tr class="border-b border-black hover:bg-gray-50 transition">
         <td class="p-4 border-r border-black font-bold">${idx + 1}</td>
@@ -555,7 +556,7 @@ function renderTable(data) {
         </td>
         <td class="p-4 text-center">${actionCell(item)}</td>
         <td class="p-4 border-r border-black text-center">
-          <button onclick="openDealModal(${JSON.stringify(item).extraSpacesEscapedOrHandled})" class="underline font-bold hover:text-gray-600">
+          <button onclick="openDealModal(${safeId})" class="underline font-bold hover:text-gray-600">
             View Details
           </button>
         </td>
@@ -639,13 +640,26 @@ async function loadDeals() {
   }
 }
 
-function openDealModal(item) {
+function findItemById(id) {
+  const rawId = id;
+  const find = (arr) => Array.isArray(arr) ? arr.find(i => `${i?.id}` === `${rawId}`) : undefined;
+
+  if (currentPage === 'Products') return find(marketItemsCache);
+  if (currentPage === 'Orders') return find(ordersCache);
+
+  return find(dealsCache) || find(ordersCache) || find(marketItemsCache);
+}
+
+function openDealModal(itemId) {
+  const item = findItemById(itemId);
+  if (!item) {
+    showToast('Unable to load deal details.', 'error');
+    return;
+  }
+
   // Deal info
   document.getElementById('modal-status').innerText = item.status || 'N/A';
   document.getElementById('modal-created-at').innerText = item.createdAt || 'N/A';
-
-  document.getElementById('modal-item-title').innerText = item.dealTitle || item.dealTitle || 'N/A';
-  document.getElementById('modal-deal-value').innerText = item.dealValue || 'N/A';
   document.getElementById('modal-item-size').innerText = item.itemSize || 'N/A';
   document.getElementById('modal-description').innerText = item.description || 'No description provided.';
 
@@ -662,21 +676,24 @@ function openDealModal(item) {
     linkEl.style.display = 'none';
   }
 
-  // Seller info (FIXED)
+  // Seller info
   document.getElementById('modal-seller-name').innerText = item.clientName || item.sellerName || 'N/A';
   document.getElementById('modal-seller-phone').innerText = item.sellerPhone || 'N/A';
-
   document.getElementById('modal-seller-state').innerText = item.sellerState || 'N/A';
   document.getElementById('modal-seller-city').innerText = item.sellerCity || 'N/A';
   document.getElementById('modal-seller-street').innerText = item.sellerStreet || 'N/A';
 
-  // Delivery info (FIXED)
+  // Delivery info
   document.getElementById('modal-delivery-state').innerText = item.deliveryState || 'N/A';
   document.getElementById('modal-delivery-city').innerText = item.deliveryCity || 'N/A';
   document.getElementById('modal-delivery-street').innerText = item.deliveryStreet || 'N/A';
 
   // Show modal
   document.getElementById('dealModal').classList.remove('hidden');
+}
+
+function closeDealModal() {
+  document.getElementById('dealModal')?.classList.add('hidden');
 }
 
 function toggleNav(id) {
