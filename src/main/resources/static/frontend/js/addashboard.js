@@ -658,18 +658,19 @@ function openDealModal(itemId) {
   }
 
   // Deal info
-  document.getElementById('modal-status').innerText = item.status || 'N/A';
+  const statusText = (item?.status || '').toString().trim() || 'N/A';
+  document.getElementById('modal-status').innerText = statusText;
   document.getElementById('modal-created-at').innerText = item.createdAt || 'N/A';
   document.getElementById('modal-item-size').innerText = item.itemSize || 'N/A';
-  document.getElementById('modal-description').innerText = item.description || 'No description provided.';
+  document.getElementById('modal-description').innerText = item.description ?? 'No description provided.';
 
-  // Payment info
-  document.getElementById('modal-upfront').innerText = item.upfrontPayment || 'N/A';
-  document.getElementById('modal-weekly').innerText = item.weeklyPayment || 'N/A';
+  // Payment info (show 0 values correctly and format as currency)
+  document.getElementById('modal-upfront').innerText = (item?.upfrontPayment != null) ? naira(item.upfrontPayment) : 'N/A';
+  document.getElementById('modal-weekly').innerText = (item?.weeklyPayment != null) ? naira(item.weeklyPayment) : 'N/A';
 
   // Deal link
   const linkEl = document.getElementById('modal-deal-link');
-  if (item.dealLink) {
+  if (item?.dealLink) {
     linkEl.href = item.dealLink;
     linkEl.style.display = 'block';
   } else {
