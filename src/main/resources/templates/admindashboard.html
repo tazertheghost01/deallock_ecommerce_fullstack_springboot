@@ -189,89 +189,92 @@
   <div class="bg-white border-2 border-black w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
     
     <!-- Header -->
-    <div class="p-4 border-b-2 border-black flex justify-between items-center bg-gray-50">
-      <h2 class="text-xl font-black uppercase tracking-wider">Deal Details</h2>
-      <button onclick="closeDealModal()" class="border border-black px-2 py-1 font-bold hover:bg-black hover:text-white transition">
-        ✕ Close
-      </button>
+   <!-- Body -->
+<div class="p-6 space-y-6">
+  <!-- Meta Section (Status, Date, Link) -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-black pb-4">
+    <div>
+      <span class="block text-xs uppercase font-bold text-gray-500">Status</span>
+      <span id="modal-status" class="inline-block px-2 py-0.5 text-[10px] font-black border border-black uppercase mt-1"></span>
     </div>
-
-    <!-- Body -->
-    <div class="p-6 space-y-6">
-      
-      <!-- Meta Section (Status, Date, Link) -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-black pb-4">
-        <div>
-          <span class="block text-xs uppercase font-bold text-gray-500">Status</span>
-          <span id="modal-status" class="inline-block px-2 py-0.5 text-[10px] font-black border border-black uppercase mt-1"></span>
-        </div>
-        <div>
-          <span class="block text-xs uppercase font-bold text-gray-500">Created At</span>
-          <p id="modal-created-at" class="font-medium mt-1"></p>
-        </div>
-        <div>
-          <span class="block text-xs uppercase font-bold text-gray-500">Deal Link</span>
-          <a id="modal-deal-link" href="#" target="_blank" class="text-blue-600 underline font-medium mt-1 block truncate">View Link</a>
-        </div>
-      </div>
-
-      <!-- Seller & Item Info -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-black pb-4">
-        <div>
-          <span class="block text-xs uppercase font-bold text-gray-500">Approved Seller</span>
-          <p id="modal-seller-name" class="font-bold mt-1"></p>
-        </div>
-        <div>
-          <span class="block text-xs uppercase font-bold text-gray-500">Seller Phone</span>
-          <p id="modal-seller-phone" class="font-medium mt-1"></p>
-        </div>
-        <div>
-          <span class="block text-xs uppercase font-bold text-gray-500">Item Size</span>
-          <p id="modal-item-size" class="font-medium mt-1"></p>
-        </div>
-      </div>
-
-      <!-- Financials -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-b border-black pb-4 bg-gray-50 p-3 border">
-        <div>
-          <span class="block text-xs uppercase font-bold text-gray-500">Upfront Payment</span>
-          <p id="modal-upfront" class="text-lg font-black text-green-700 mt-1"></p>
-        </div>
-        <div>
-          <span class="block text-xs uppercase font-bold text-gray-500">Weekly Payment</span>
-          <p id="modal-weekly" class="text-lg font-black text-green-700 mt-1"></p>
-        </div>
-      </div>
-
-      <!-- Addresses -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-black pb-4">
-        <div>
-          <span class="block text-xs uppercase font-black tracking-wide text-gray-700">Seller Address</span>
-          <div class="mt-2 text-sm space-y-1 bg-gray-50 p-3 border border-black">
-            <p><strong>State:</strong> <span id="modal-seller-state"></span></p>
-            <p><strong>City:</strong> <span id="modal-seller-city"></span></p>
-            <p><strong>Address:</strong> <span id="modal-seller-street"></span></p>
-          </div>
-        </div>
-        <div>
-          <span class="block text-xs uppercase font-black tracking-wide text-gray-700">Delivery Address</span>
-          <div class="mt-2 text-sm space-y-1 bg-gray-50 p-3 border border-black">
-            <p><strong>State:</strong> <span id="modal-delivery-state"></span></p>
-            <p><strong>City:</strong> <span id="modal-delivery-city"></span></p>
-            <p><strong>Address:</strong> <span id="modal-delivery-street"></span></p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Description -->
-      <div>
-        <span class="block text-xs uppercase font-bold text-gray-500">Approved Description</span>
-        <p id="modal-description" class="mt-2 text-sm p-3 bg-gray-50 border border-black whitespace-pre-wrap leading-relaxed"></p>
-      </div>
-
+    <div>
+      <span class="block text-xs uppercase font-bold text-gray-500">Created At</span>
+      <p id="modal-created-at" class="font-medium mt-1"></p>
+    </div>
+    <div>
+      <span class="block text-xs uppercase font-bold text-gray-500">Deal Link</span>
+      <a id="modal-deal-link" href="#" target="_blank" class="text-blue-600 underline font-medium mt-1 block truncate">View Link</a>
     </div>
   </div>
+
+  <!-- INSERTED: Deal Image Section -->
+  <div id="modal-image-container" class="border-b border-black pb-4" style="display: none;">
+    <span class="block text-xs uppercase font-bold text-gray-500 mb-2">Deal Image</span>
+    <div class="bg-gray-50 border border-black p-2 flex justify-center items-center max-h-72 overflow-hidden">
+      <img 
+        id="modal-image" 
+        src="" 
+        alt="Deal Image" 
+        class="max-w-full max-h-64 object-contain" 
+      />
+    </div>
+  </div>
+
+  <!-- Seller & Item Info -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-black pb-4">
+    <div>
+      <span class="block text-xs uppercase font-bold text-gray-500">Approved Seller</span>
+      <p id="modal-seller-name" class="font-bold mt-1"></p>
+    </div>
+    <div>
+      <span class="block text-xs uppercase font-bold text-gray-500">Seller Phone</span>
+      <p id="modal-seller-phone" class="font-medium mt-1"></p>
+    </div>
+    <div>
+      <span class="block text-xs uppercase font-bold text-gray-500">Item Size</span>
+      <p id="modal-item-size" class="font-medium mt-1"></p>
+    </div>
+  </div>
+
+  <!-- Financials -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-b border-black pb-4 bg-gray-50 p-3 border">
+    <div>
+      <span class="block text-xs uppercase font-bold text-gray-500">Upfront Payment</span>
+      <p id="modal-upfront" class="text-lg font-black text-green-700 mt-1"></p>
+    </div>
+    <div>
+      <span class="block text-xs uppercase font-bold text-gray-500">Weekly Payment</span>
+      <p id="modal-weekly" class="text-lg font-black text-green-700 mt-1"></p>
+    </div>
+  </div>
+
+  <!-- Addresses -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-black pb-4">
+    <div>
+      <span class="block text-xs uppercase font-black tracking-wide text-gray-700">Seller Address</span>
+      <div class="mt-2 text-sm space-y-1 bg-gray-50 p-3 border border-black">
+        <p><strong>State:</strong> <span id="modal-seller-state"></span></p>
+        <p><strong>City:</strong> <span id="modal-seller-city"></span></p>
+        <p><strong>Address:</strong> <span id="modal-seller-street"></span></p>
+      </div>
+    </div>
+    <div>
+      <span class="block text-xs uppercase font-black tracking-wide text-gray-700">Delivery Address</span>
+      <div class="mt-2 text-sm space-y-1 bg-gray-50 p-3 border border-black">
+        <p><strong>State:</strong> <span id="modal-delivery-state"></span></p>
+        <p><strong>City:</strong> <span id="modal-delivery-city"></span></p>
+        <p><strong>Address:</strong> <span id="modal-delivery-street"></span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Description -->
+  <div>
+    <span class="block text-xs uppercase font-bold text-gray-500">Approved Description</span>
+    <p id="modal-description" class="mt-2 text-sm p-3 bg-gray-50 border border-black whitespace-pre-wrap leading-relaxed"></p>
+  </div>
 </div>
+
 
 
 

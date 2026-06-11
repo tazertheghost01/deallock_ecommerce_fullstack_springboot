@@ -664,6 +664,23 @@ function openDealModal(itemId) {
   document.getElementById('modal-item-size').innerText = item.itemSize || 'N/A';
   document.getElementById('modal-description').innerText = item.description ?? 'No description provided.';
 
+  // Handle Deal Image Display
+  const imgEl = document.getElementById('modal-image');
+  const imgContainer = document.getElementById('modal-image-container');
+  
+  if (imgEl && imgContainer) {
+    // Looks for common backend image naming variations
+    const itemImg = item.imageUrl || item.image || item.itemImage || item.photo || item.picture; 
+    
+    if (itemImg) {
+      imgEl.src = itemImg;
+      imgContainer.style.display = 'block'; // Shows container if image is found
+    } else {
+      imgEl.src = ''; 
+      imgContainer.style.display = 'none';  // Hides container if image is N/A
+    }
+  }
+
   // Payment info (show 0 values correctly and format as currency)
   document.getElementById('modal-upfront').innerText = (item?.upfrontPayment != null) ? naira(item.upfrontPayment) : 'N/A';
   document.getElementById('modal-weekly').innerText = (item?.weeklyPayment != null) ? naira(item.weeklyPayment) : 'N/A';
@@ -693,9 +710,19 @@ function openDealModal(itemId) {
   document.getElementById('dealModal').classList.remove('hidden');
 }
 
+
 function closeDealModal() {
-  document.getElementById('dealModal')?.classList.add('hidden');
+  // Hide the modal container
+  document.getElementById('dealModal').classList.add('hidden');
+
+  // Reset the image to prevent flickering on next open
+  const imgEl = document.getElementById('modal-image');
+  const imgContainer = document.getElementById('modal-image-container');
+  
+  if (imgEl) imgEl.src = '';
+  if (imgContainer) imgContainer.style.display = 'none';
 }
+
 
 function toggleNav(id) {
   document.getElementById(id)?.classList.toggle('hidden');
