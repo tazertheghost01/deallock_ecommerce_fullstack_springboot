@@ -15,6 +15,11 @@
   }
 }
 
+// FIX 1: HTML calls toggleNav(...) — alias it to toggleNavDropdown so sidebar buttons work
+function toggleNav(id) {
+  toggleNavDropdown(id);
+}
+
 function showToast(message, type) {
   const t = document.createElement('div');
   const tone = type === 'error' ? 'bg-red-600' : 'bg-emerald-600';
@@ -97,6 +102,30 @@ function filterStatus(type) {
   else btnAll?.classList.add('bg-black', 'text-white');
 
   render();
+}
+
+// FIX 2: applyFilters() is called in HTML but was never defined
+function applyFilters() {
+  const from = document.getElementById('date-from')?.value;
+  const to = document.getElementById('date-to')?.value;
+
+  let data = filterDealsForPage();
+
+  if (from || to) {
+    const fromDate = from ? new Date(from) : null;
+    const toDate = to ? new Date(to + 'T23:59:59') : null;
+
+    data = data.filter(item => {
+      const raw = item?.createdAt || item?.orderDate || item?.createdDate;
+      if (!raw) return true;
+      const d = new Date(raw);
+      if (fromDate && d < fromDate) return false;
+      if (toDate && d > toDate) return false;
+      return true;
+    });
+  }
+
+  renderTable(data);
 }
 
 function switchPage(pageName) {
@@ -530,7 +559,8 @@ function renderTable(data) {
 
   if (!data || data.length === 0) {
     const label = currentPage === 'Products' ? 'No marketplace items' : (currentPage === 'Orders' ? 'No orders yet' : 'No deals in this bucket');
-    tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-[10px] text-gray-400 font-bold uppercase">${label}</td></tr>`;
+    // FIX 3: colspan was 6, table has 7 columns (S/N, Item ID, Name, Price, Status, Action, Details)
+    tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-[10px] text-gray-400 font-bold uppercase">${label}</td></tr>`;
     return;
   }
 
@@ -572,7 +602,8 @@ function render() {
 async function loadMarketItems() {
   const tbody = document.getElementById('table-body');
   if (tbody) {
-    tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-[10px] text-gray-400 font-bold uppercase">Loading...</td></tr>`;
+    // FIX 3: colspan corrected to 7 here too
+    tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-[10px] text-gray-400 font-bold uppercase">Loading...</td></tr>`;
   }
   try {
     marketItemsCache = await fetchJsonList('/api/admin/marketplace/items');
@@ -583,7 +614,7 @@ async function loadMarketItems() {
       return;
     }
     if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-[10px] text-red-600 font-bold uppercase">${e?.message || 'Failed to load items.'}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-[10px] text-red-600 font-bold uppercase">${e?.message || 'Failed to load items.'}</td></tr>`;
     }
   }
 }
@@ -603,7 +634,7 @@ async function loadCurrentPageData() {
 async function loadOrders() {
   const tbody = document.getElementById('table-body');
   if (tbody) {
-    tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-[10px] text-gray-400 font-bold uppercase">Loading...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-[10px] text-gray-400 font-bold uppercase">Loading...</td></tr>`;
   }
 
   try {
@@ -615,7 +646,7 @@ async function loadOrders() {
       return;
     }
     if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-[10px] text-red-600 font-bold uppercase">${e?.message || 'Failed to load orders.'}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-[10px] text-red-600 font-bold uppercase">${e?.message || 'Failed to load orders.'}</td></tr>`;
     }
   }
 }
@@ -623,7 +654,7 @@ async function loadOrders() {
 async function loadDeals() {
   const tbody = document.getElementById('table-body');
   if (tbody) {
-    tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-[10px] text-gray-400 font-bold uppercase">Loading...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-[10px] text-gray-400 font-bold uppercase">Loading...</td></tr>`;
   }
 
   try {
@@ -635,7 +666,7 @@ async function loadDeals() {
       return;
     }
     if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-[10px] text-red-600 font-bold uppercase">${e?.message || 'Failed to load deals.'}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-[10px] text-red-600 font-bold uppercase">${e?.message || 'Failed to load deals.'}</td></tr>`;
     }
   }
 }
@@ -667,21 +698,20 @@ function openDealModal(itemId) {
   // Handle Deal Image Display
   const imgEl = document.getElementById('modal-image');
   const imgContainer = document.getElementById('modal-image-container');
-  
+
   if (imgEl && imgContainer) {
-    // Looks for common backend image naming variations
-    const itemImg = item.imageUrl || item.image || item.itemImage || item.photo || item.picture; 
-    
+    const itemImg = item.imageUrl || item.image || item.itemImage || item.photo || item.picture;
+
     if (itemImg) {
       imgEl.src = itemImg;
-      imgContainer.style.display = 'block'; // Shows container if image is found
+      imgContainer.style.display = 'block';
     } else {
-      imgEl.src = ''; 
-      imgContainer.style.display = 'none';  // Hides container if image is N/A
+      imgEl.src = '';
+      imgContainer.style.display = 'none';
     }
   }
 
-  // Payment info (show 0 values correctly and format as currency)
+  // Payment info
   document.getElementById('modal-upfront').innerText = (item?.upfrontPayment != null) ? naira(item.upfrontPayment) : 'N/A';
   document.getElementById('modal-weekly').innerText = (item?.weeklyPayment != null) ? naira(item.weeklyPayment) : 'N/A';
 
@@ -710,22 +740,14 @@ function openDealModal(itemId) {
   document.getElementById('dealModal').classList.remove('hidden');
 }
 
-
 function closeDealModal() {
-  // Hide the modal container
   document.getElementById('dealModal').classList.add('hidden');
 
-  // Reset the image to prevent flickering on next open
   const imgEl = document.getElementById('modal-image');
   const imgContainer = document.getElementById('modal-image-container');
-  
+
   if (imgEl) imgEl.src = '';
   if (imgContainer) imgContainer.style.display = 'none';
-}
-
-
-function toggleNav(id) {
-  document.getElementById(id)?.classList.toggle('hidden');
 }
 
 function openNewProductModal() {
