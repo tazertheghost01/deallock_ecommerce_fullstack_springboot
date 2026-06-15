@@ -705,7 +705,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const sellerAddress   = buildAddress('seller');
     const deliveryAddress = buildAddress('delivery');
     formData.set('seller-address', sellerAddress);
+    formData.set('seller-state', document.getElementById('seller-state')?.value || '');
+    formData.set('seller-city', document.getElementById('seller-city')?.value || '');
     formData.set('delivery-address', deliveryAddress);
+    formData.set('delivery-state', document.getElementById('delivery-state')?.value || '');
+    formData.set('delivery-city', document.getElementById('delivery-city')?.value || '');
 
     const title            = formData.get('deal-title');
     const client           = formData.get('client-name');
