@@ -120,6 +120,34 @@ public class DealReadService {
                     boolean expiredUnpaid = isExpiredUnpaidApprovedDeal(d, now);
                     row.put("expiredUnpaid", expiredUnpaid);
                     row.put("marketplaceListed", d.getId() != null && listedDealIds.contains(d.getId()));
+
+                    // Add fields for admin deal modal display
+                    row.put("description", d.getDescription() == null ? "No description provided." : d.getDescription());
+                    row.put("itemSize", d.getItemSize() == null ? "N/A" : d.getItemSize());
+                    row.put("upfrontPayment", d.getUpfrontPaymentAmount() == null ? 0 : d.getUpfrontPaymentAmount());
+                    row.put("weeklyPayment", d.getWeeklyPaymentAmount() == null ? 0 : d.getWeeklyPaymentAmount());
+                    
+                    // Image URL - construct API endpoint if photo exists
+                    if (d.getId() != null && (d.getItemPhoto() != null || d.getItemPhotoKey() != null)) {
+                        row.put("imageUrl", "/api/deals/" + d.getId() + "/photo");
+                    }
+                    
+                    // Deal link
+                    row.put("dealLink", d.getLink() == null ? null : d.getLink());
+                    
+                    // Seller info
+                    row.put("clientName", d.getClientName() == null ? "N/A" : d.getClientName());
+                    row.put("sellerName", d.getClientName() == null ? "N/A" : d.getClientName());
+                    row.put("sellerPhone", d.getSellerPhoneNumber() == null ? "N/A" : d.getSellerPhoneNumber());
+                    row.put("sellerCity", d.getSellerCity() == null ? "N/A" : d.getSellerCity());
+                    row.put("sellerState", d.getSellerLga() == null ? (d.getSellerCountry() == null ? "N/A" : d.getSellerCountry()) : d.getSellerLga());
+                    row.put("sellerStreet", d.getSellerAddress() == null ? "N/A" : d.getSellerAddress());
+                    
+                    // Delivery info
+                    row.put("deliveryCity", d.getBuyerCity() == null ? "N/A" : d.getBuyerCity());
+                    row.put("deliveryState", d.getBuyerState() == null ? "N/A" : d.getBuyerState());
+                    row.put("deliveryStreet", d.getDeliveryAddress() == null ? "N/A" : d.getDeliveryAddress());
+
                     return row;
                 })
                 .collect(Collectors.toList());
