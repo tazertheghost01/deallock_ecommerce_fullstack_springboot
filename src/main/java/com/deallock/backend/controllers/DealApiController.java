@@ -98,7 +98,11 @@ public class DealApiController {
                                         @RequestParam("client-name") String clientName,
                                         @RequestParam(value = "seller-phone", required = false) String sellerPhone,
                                         @RequestParam("seller-address") String sellerAddress,
+                                        @RequestParam(value = "seller-state", required = false) String sellerState,
+                                        @RequestParam(value = "seller-city", required = false) String sellerCity,
                                         @RequestParam("delivery-address") String deliveryAddress,
+                                        @RequestParam(value = "delivery-state", required = false) String deliveryState,
+                                        @RequestParam(value = "delivery-city", required = false) String deliveryCity,
                                         @RequestParam("item-size") String itemSize,
                                         @RequestParam(value = "listing", required = false) String listing,
                                         @RequestParam(value = "allowMarketplaceListing", required = false) Boolean allowMarketplaceListing,
@@ -132,7 +136,13 @@ public class DealApiController {
         deal.setClientName(clientName);
         deal.setSellerPhoneNumber(sellerPhone);
         deal.setSellerAddress(sellerAddress);
+        deal.setSellerCity(sellerCity);
+        deal.setSellerLga(sellerState);
+        deal.setSellerCountry((sellerState != null && !sellerState.isBlank()) ? "Nigeria" : null);
         deal.setDeliveryAddress(deliveryAddress);
+        deal.setBuyerCity(deliveryCity);
+        deal.setBuyerState(deliveryState);
+        deal.setBuyerCountry((deliveryState != null && !deliveryState.isBlank()) ? "Nigeria" : null);
         deal.setItemSize(normalizeSize(itemSize));
         Boolean allow = allowMarketplaceListing;
         if (allow == null) {

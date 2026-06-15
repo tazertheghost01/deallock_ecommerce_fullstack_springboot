@@ -713,7 +713,11 @@ function openDealModal(itemId) {
 
   // Payment info
   document.getElementById('modal-upfront').innerText = (item?.upfrontPayment != null) ? naira(item.upfrontPayment) : 'N/A';
-  document.getElementById('modal-weekly').innerText = (item?.weeklyPayment != null) ? naira(item.weeklyPayment) : 'N/A';
+  const installmentWeeks = item?.installmentWeeks && item.installmentWeeks > 0 ? item.installmentWeeks : 1;
+  const weeklyLabel = item?.weeklyPayment != null
+    ? `x${installmentWeeks} (${naira(item.weeklyPayment)})`
+    : `x${installmentWeeks}`;
+  document.getElementById('modal-weekly').innerText = weeklyLabel;
 
   // Deal link
   const linkEl = document.getElementById('modal-deal-link');

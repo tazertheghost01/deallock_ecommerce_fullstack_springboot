@@ -124,6 +124,7 @@ public class DealReadService {
                     // Add fields for admin deal modal display
                     row.put("description", d.getDescription() == null ? "No description provided." : d.getDescription());
                     row.put("itemSize", d.getItemSize() == null ? "N/A" : d.getItemSize());
+                    row.put("installmentWeeks", d.getInstallmentWeeks() == null ? 0 : d.getInstallmentWeeks());
                     row.put("upfrontPayment", d.getUpfrontPaymentAmount() == null ? 0 : d.getUpfrontPaymentAmount());
                     row.put("weeklyPayment", d.getWeeklyPaymentAmount() == null ? 0 : d.getWeeklyPaymentAmount());
                     
